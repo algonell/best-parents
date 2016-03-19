@@ -1,4 +1,4 @@
-package il.ac.openu.bestparents;
+package il.ac.openu.bestparents.sandbox;
 
 import weka.core.ContingencyTables;
 
