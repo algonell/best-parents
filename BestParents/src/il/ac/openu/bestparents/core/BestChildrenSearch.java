@@ -29,11 +29,12 @@ import weka.core.Instances;
 /**
  * @author Andrew Kreimer - algonell.com
  */
-public class BestChildrenSearch extends SearchAlgorithm{
+public class BestChildrenSearch extends SearchAlgorithm {
 
 	private static final long serialVersionUID = 1032285588625105530L;
 	
-	private int m_nMaxNrOfChildren;
+	private int maxNrOfChildren;
+	private double[][][][] attributeMatrix;
 	
 	/**
 	 * @param bayesNet
@@ -46,46 +47,77 @@ public class BestChildrenSearch extends SearchAlgorithm{
 	@Override
 	public void search(BayesNet bayesNet, Instances instances) throws Exception {
 		// contingency table for each attribute X attribute matrix
-		double attributeMatrix[][][][] = new double[instances.numAttributes()][instances
+		attributeMatrix = new double[instances.numAttributes()][instances
 				.numAttributes()][][];
 
 		// allocate
-		for (int j = 0; j < instances.numAttributes(); j++) {
-			for (int k = 0; k < j; k++) {
-				if (j == k)
-					continue;
-				attributeMatrix[j][k] = new double[instances.attribute(j)
-						.numValues()][instances.attribute(k).numValues()];
-			}
-		}
+		allocate(instances);
 
 		// count instantiations
-		for (int n = 0; n < instances.numInstances(); n++) {
-			for (int i = 0; i < instances.numAttributes(); i++) {
-				for (int j = 0; j < i; j++) {
-					int iAttrIndex = (int) instances.instance(n).value(i);
-					int jAttrIndex = (int) instances.instance(n).value(j);
-					attributeMatrix[i][j][iAttrIndex][jAttrIndex]++;
-				}
-			}
-		}
+		count(instances);
 
 		// for each attribute with index i: map<entropy, child index>, keeping the map sorted
-		ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList = new ArrayList<TreeMap<Double, Integer>>();
+		ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList = new ArrayList<>();
 		
 		//allocate
 		for (int i = 0; i < instances.numAttributes(); i++) {
-			TreeMap<Double, Integer> tmpTreeMap = new TreeMap<Double, Integer>();
+			TreeMap<Double, Integer> tmpTreeMap = new TreeMap<>();
 			attributeBestChildrenList.add(i, tmpTreeMap);
 		}
 		
 		//map<entropy, rule(string)>
-		TreeMap<Double, String> entropyRuleMap = new TreeMap<Double, String>();
+		TreeMap<Double, String> entropyRuleMap = new TreeMap<>();
 
 		//map<entropy, rule(attributeParentIndex -> attributeChildIndex)>
-		TreeMap<Double, Entry<Integer,Integer>> entropyParentToChildMap = new TreeMap<Double, Entry<Integer,Integer>>();
+		TreeMap<Double, Entry<Integer,Integer>> entropyParentToChildMap = new TreeMap<>();
 		
 		// calculate conditional entropy for contingency tables
+		calculateContingencyTables(instances, attributeBestChildrenList, entropyRuleMap, entropyParentToChildMap);
+
+		//build network
+		assembleNetwork(bayesNet, instances, attributeBestChildrenList);
+	}
+
+	/**
+	 * Assembles network 
+	 * 
+	 * @param bayesNet
+	 * @param instances
+	 * @param attributeBestChildrenList
+	 */
+	private void assembleNetwork(BayesNet bayesNet, Instances instances,
+			ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList) {
+		for (int i = 0; i < instances.numAttributes(); i++) {
+			TreeMap<Double, Integer> tmpTreeMap = attributeBestChildrenList.get(i);
+			int numOfAddedRules = 0;
+			
+			for (Entry<Double, Integer> entry : tmpTreeMap.entrySet()) {
+				int value = entry.getValue();
+				
+				int numOfParentsForCurrentChild = bayesNet.getParentSet(value).getNrOfParents();
+				if (numOfAddedRules < getMaxNrOfChildren() &&
+						numOfParentsForCurrentChild < getMaxNrOfChildren() &&
+						numOfAddedRules < tmpTreeMap.size() &&
+						NewBNUtils.countNumOfChildren(bayesNet, instances, i) < getMaxNrOfChildren() &&
+						!bayesNet.getParentSet(value).contains(i)){
+					bayesNet.getParentSet(value).addParent(i, instances);
+					numOfAddedRules++;
+				}
+			}
+		}
+	}
+
+	/**
+	 * Calculate conditional entropies
+	 * 
+	 * @param instances
+	 * @param attributeBestChildrenList
+	 * @param entropyRuleMap
+	 * @param entropyParentToChildMap
+	 */
+	private void calculateContingencyTables(Instances instances,
+			ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList, TreeMap<Double, String> entropyRuleMap,
+			TreeMap<Double, Entry<Integer, Integer>> entropyParentToChildMap) {
 		for (int i = 0; i < instances.numAttributes(); i++) {
 			for (int j = 0; j < i; j++) {
 				double entropyConditionedOnRows = ContingencyTables.entropyConditionedOnRows(attributeMatrix[i][j]);
@@ -103,46 +135,45 @@ public class BestChildrenSearch extends SearchAlgorithm{
 				
 				if (entropyConditionedOnRows < entropyConditionedOnColumns) {
 					attributeBestChildrenList.get(i).put(lowestEntropy, j);
-					entropyParentToChildMap.put(lowestEntropy, new AbstractMap.SimpleEntry<Integer,Integer>(i,j));
+					entropyParentToChildMap.put(lowestEntropy, new AbstractMap.SimpleEntry<>(i,j));
 				} else {
 					attributeBestChildrenList.get(j).put(lowestEntropy, i);
-					entropyParentToChildMap.put(lowestEntropy, new AbstractMap.SimpleEntry<Integer,Integer>(j,i));
+					entropyParentToChildMap.put(lowestEntropy, new AbstractMap.SimpleEntry<>(j,i));
 				}
 			}
 		}
+	}
 
-		for (int i = 0; i < instances.numAttributes(); i++) {
-			TreeMap<Double, Integer> tmpTreeMap = attributeBestChildrenList.get(i);
-			int numOfAddedRules = 0;
-			
-			for (Double key : tmpTreeMap.keySet()) {
-				int numOfParentsForCurrentChild = bayesNet.getParentSet(tmpTreeMap.get(key)).getNrOfParents();
-				if (numOfAddedRules < getMaxNrOfChildren() &&
-						numOfParentsForCurrentChild < getMaxNrOfChildren() &&
-						numOfAddedRules < tmpTreeMap.size() &&
-						NewBNUtils.countNumOfChildren(bayesNet, instances, i) < getMaxNrOfChildren() &&
-						!bayesNet.getParentSet(tmpTreeMap.get(key)).contains(i)){
-					bayesNet.getParentSet(tmpTreeMap.get(key)).addParent(i, instances);
-					numOfAddedRules++;
+	/**
+	 * Count occurances
+	 * 
+	 * @param instances
+	 */
+	private void count(Instances instances) {
+		for (int n = 0; n < instances.numInstances(); n++) {
+			for (int i = 0; i < instances.numAttributes(); i++) {
+				for (int j = 0; j < i; j++) {
+					int iAttrIndex = (int) instances.instance(n).value(i);
+					int jAttrIndex = (int) instances.instance(n).value(j);
+					attributeMatrix[i][j][iAttrIndex][jAttrIndex]++;
 				}
 			}
 		}
+	}
 
-		// print sorted rules for each attribute (best children)
-//		System.out.println("\n--------------------------------------------------");
-//		System.out.println("print sorted rules for each attribute (best children):");
-//		int i = 0 ;
-//		for (TreeMap<Double, Integer> tmpTreeMap : attributeBestChildrenList) {
-//			System.out.println("i: " + i);
-//			for (Double key : tmpTreeMap.keySet()) {
-//				System.out.println("Entropy: " + key + ", " + tmpTreeMap.get(key));
-//			}
-//			i++;
-//			System.out.println("");
-//		}
-		
-//		System.out.println("\nBNBestChildrenSearch.search(): complete");
-	} // buildStructure
+	/**
+	 * Allocate memory
+	 * 
+	 * @param instances
+	 */
+	private void allocate(Instances instances) {
+		for (int j = 0; j < instances.numAttributes(); j++) {
+			for (int k = 0; k < j; k++) {
+				attributeMatrix[j][k] = new double[instances.attribute(j)
+						.numValues()][instances.attribute(k).numValues()];
+			}
+		}
+	}
 	
 	/**
 	 * Sets the max number of children
@@ -151,7 +182,7 @@ public class BestChildrenSearch extends SearchAlgorithm{
 	 *            the max number of children
 	 */
 	public void setMaxNrOfChildren(int nMaxNrOfChildren) {
-		m_nMaxNrOfChildren = nMaxNrOfChildren;
+		maxNrOfChildren = nMaxNrOfChildren;
 	}
 
 	/**
@@ -160,6 +191,6 @@ public class BestChildrenSearch extends SearchAlgorithm{
 	 * @return the max number of children
 	 */
 	public int getMaxNrOfChildren() {
-		return m_nMaxNrOfChildren;
+		return maxNrOfChildren;
 	}
 }
