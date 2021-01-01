@@ -56,37 +56,22 @@ public class BestParentsSearch extends SearchAlgorithm{
 		
 		//add good parents, for each attribute, bounded by maxNumberOfParents
 		addBestRules(bayesNet, instances, attributeBestParentsList);
-		
-		// print sorted rules for each attribute (best parents)
-//		System.out.println("\n--------------------------------------------------");
-//		System.out.println("print sorted rules for each attribute (best parents):");
-//		int i = 0 ;
-//		for (TreeMap<Double, Integer> tmpTreeMap : attributeBestParentsList) {
-//			System.out.println("i: " + i);
-//			for (Double key : tmpTreeMap.keySet()) {
-//				System.out.println("Entropy: " + key + ", " + tmpTreeMap.get(key));
-//			}
-//			i++;
-//			System.out.println("");
-//		}
-		
-//		System.out.println("\nBNBestParentsSearch.search(): complete");
-	} // buildStructure
+	}
 
 	private void addBestRules(BayesNet bayesNet, Instances instances, ArrayList<TreeMap<Double, Integer>> attributeBestParentsList) {
-		//System.out.println("\n--------------------------------------------------");
-		//System.out.println("add good parents, for each attribute, bounded by maxNumberOfParents");
 		for (int i = 0; i < instances.numAttributes(); i++) {
 			TreeMap<Double, Integer> tmpTreeMap = attributeBestParentsList.get(i);
 			int numOfAddedRules = 0;
 			
-			for (Double key : tmpTreeMap.keySet()) {
+			for (Entry<Double, Integer> entry : tmpTreeMap.entrySet()) {
+				int value = entry.getValue();
+				
 				if (numOfAddedRules < getMaxNrOfParents() && 
 						numOfAddedRules < tmpTreeMap.size() &&
 						//avoid parents with several children
-						NewBNUtils.countNumOfChildren(bayesNet, instances, tmpTreeMap.get(key)) < getMaxNrOfParents() &&
-						!bayesNet.getParentSet(i).contains(tmpTreeMap.get(key))){
-					bayesNet.getParentSet(i).addParent(tmpTreeMap.get(key), instances);
+						NewBNUtils.countNumOfChildren(bayesNet, instances, value) < getMaxNrOfParents() &&
+						!bayesNet.getParentSet(i).contains(value)){
+					bayesNet.getParentSet(i).addParent(value, instances);
 					numOfAddedRules++;
 				}
 			}
@@ -101,10 +86,10 @@ public class BestParentsSearch extends SearchAlgorithm{
 	 */
 	private void findBestParents(Instances instances, double[][][][] attributeMatrix, ArrayList<TreeMap<Double, Integer>> attributeBestParentsList) {
 		//map<entropy, rule(string)>
-		TreeMap<Double, String> entropyRuleMap = new TreeMap<Double, String>();
+		TreeMap<Double, String> entropyRuleMap = new TreeMap<>();
 
 		//map<entropy, rule(attributeChildIndex <- attributeParentIndex)>
-		TreeMap<Double, Entry<Integer,Integer>> entropyChildFromParentMap = new TreeMap<Double, Entry<Integer,Integer>>();
+		TreeMap<Double, Entry<Integer,Integer>> entropyChildFromParentMap = new TreeMap<>();
 		
 		// calculate conditional entropy for contingency tables
 		for (int i = 0; i < instances.numAttributes(); i++) {
@@ -125,10 +110,10 @@ public class BestParentsSearch extends SearchAlgorithm{
 				//best rule
 				if (entropyConditionedOnRows < entropyConditionedOnColumns) {
 					attributeBestParentsList.get(j).put(lowestEntropy, i);
-					entropyChildFromParentMap.put(lowestEntropy, new AbstractMap.SimpleEntry<Integer,Integer>(j,i));
+					entropyChildFromParentMap.put(lowestEntropy, new AbstractMap.SimpleEntry<>(j,i));
 				} else {
 					attributeBestParentsList.get(i).put(lowestEntropy, j);
-					entropyChildFromParentMap.put(lowestEntropy, new AbstractMap.SimpleEntry<Integer,Integer>(i,j));
+					entropyChildFromParentMap.put(lowestEntropy, new AbstractMap.SimpleEntry<>(i,j));
 				}
 			}
 		}
@@ -140,11 +125,11 @@ public class BestParentsSearch extends SearchAlgorithm{
 	 * @return
 	 */
 	private ArrayList<TreeMap<Double, Integer>> allocateAttributeMaps(Instances instances) {
-		ArrayList<TreeMap<Double, Integer>> attributeBestParentsList = new ArrayList<TreeMap<Double, Integer>>();
+		ArrayList<TreeMap<Double, Integer>> attributeBestParentsList = new ArrayList<>();
 		
 		//allocate
 		for (int i = 0; i < instances.numAttributes(); i++) {
-			TreeMap<Double, Integer> tmpTreeMap = new TreeMap<Double, Integer>();
+			TreeMap<Double, Integer> tmpTreeMap = new TreeMap<>();
 			attributeBestParentsList.add(i, tmpTreeMap);
 		}
 		
@@ -174,16 +159,11 @@ public class BestParentsSearch extends SearchAlgorithm{
 	 * @return
 	 */
 	private double[][][][] allocateAttributeMatrix(Instances instances) {
-		double attributeMatrix[][][][] = new double[instances.numAttributes()][instances
-				.numAttributes()][][];
+		double[][][][] attributeMatrix = new double[instances.numAttributes()][instances.numAttributes()][][];
 
 		// allocate
 		for (int j = 0; j < instances.numAttributes(); j++) {
 			for (int k = 0; k < j; k++) {
-				if (j == k){
-					continue;
-				}
-					
 				attributeMatrix[j][k] = new double[instances.attribute(j).numValues()][instances.attribute(k).numValues()];
 			}
 		}
@@ -209,4 +189,5 @@ public class BestParentsSearch extends SearchAlgorithm{
 	public int getMaxNrOfParents() {
 		return m_nMaxNrOfParents;
 	}
+	
 }
