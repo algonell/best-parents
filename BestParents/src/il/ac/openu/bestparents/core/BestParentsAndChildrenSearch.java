@@ -32,7 +32,12 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm{
 
 	private static final long serialVersionUID = 8139091196984853152L;
 	
-	private int m_nMaxNrOfChildren;
+	private int maxNrOfChildren;
+	private double[][][][] attributeMatrix;
+
+	ArrayList<TreeMap<Double, Integer>> attributeBestParentsList;
+	ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList;
+	ArrayList<TreeMap<Double, Integer>> attributeBestParentsAndChildrenList;
 	
 	/**
 	 * @param bayesNet
@@ -45,56 +50,104 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm{
 	@Override
 	public void search(BayesNet bayesNet, Instances instances) throws Exception {
 		// contingency table for each attribute X attribute matrix
-		double attributeMatrix[][][][] = new double[instances.numAttributes()][instances
-				.numAttributes()][][];
+		attributeMatrix = new double[instances.numAttributes()][instances.numAttributes()][][];
 
 		// allocate
-		for (int j = 0; j < instances.numAttributes(); j++) {
-			for (int k = 0; k < j; k++) {
-				if (j == k)
-					continue;
-				attributeMatrix[j][k] = new double[instances.attribute(j)
-						.numValues()][instances.attribute(k).numValues()];
-			}
-		}
+		allocate(instances);
 
 		// count instantiations
-		for (int n = 0; n < instances.numInstances(); n++) {
-			for (int i = 0; i < instances.numAttributes(); i++) {
-				for (int j = 0; j < i; j++) {
-					int iAttrIndex = (int) instances.instance(n).value(i);
-					int jAttrIndex = (int) instances.instance(n).value(j);
-					attributeMatrix[i][j][iAttrIndex][jAttrIndex]++;
-				}
-			}
-		}
+		count(instances);
 
 		// for each attribute with index i: map<entropy, parent index>, keeping the map sorted
-		ArrayList<TreeMap<Double, Integer>> attributeBestParentsList = new ArrayList<TreeMap<Double, Integer>>();
-		ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList = new ArrayList<TreeMap<Double, Integer>>();
-		ArrayList<TreeMap<Double, Integer>> attributeBestParentsAndChildrenList = new ArrayList<TreeMap<Double, Integer>>();
+		attributeBestParentsList = new ArrayList<>();
+		attributeBestChildrenList = new ArrayList<>();
+		attributeBestParentsAndChildrenList = new ArrayList<>();
 		
 		//allocate
 		for (int i = 0; i < instances.numAttributes(); i++) {
 			TreeMap<Double, Integer> tmpTreeMap = null;
-			tmpTreeMap = new TreeMap<Double, Integer>();
+			tmpTreeMap = new TreeMap<>();
 			attributeBestParentsList.add(i, tmpTreeMap);
-			tmpTreeMap = new TreeMap<Double, Integer>();
+			tmpTreeMap = new TreeMap<>();
 			attributeBestChildrenList.add(i, tmpTreeMap);
-			tmpTreeMap = new TreeMap<Double, Integer>();
+			tmpTreeMap = new TreeMap<>();
 			attributeBestParentsAndChildrenList.add(i, tmpTreeMap);
 		}
 		
 		//map<entropy, rule(string)>
-		TreeMap<Double, String> entropyRuleMap = new TreeMap<Double, String>();
+		TreeMap<Double, String> entropyRuleMap = new TreeMap<>();
 
 		//map<entropy, rule(attributeChildIndex <- attributeParentIndex)>
-		TreeMap<Double, Entry<Integer,Integer>> entropyChildFromParentMap = new TreeMap<Double, Entry<Integer,Integer>>();
+		TreeMap<Double, Entry<Integer,Integer>> entropyChildFromParentMap = new TreeMap<>();
 
 		//map<entropy, rule(attributeParentIndex -> attributeChildIndex)>
-		TreeMap<Double, Entry<Integer,Integer>> entropyParentToChildMap = new TreeMap<Double, Entry<Integer,Integer>>();
+		TreeMap<Double, Entry<Integer,Integer>> entropyParentToChildMap = new TreeMap<>();
 		
 		// calculate conditional entropy for contingency tables
+		calculateContingencyTables(instances, entropyRuleMap, entropyChildFromParentMap, entropyParentToChildMap);
+
+		//Greedy algorithm: for each attribute take best child or parent, having the lower entropy
+		//if true not usable, if false (default) usable
+		boolean[] parentsBlackList = new boolean[instances.numAttributes()];
+		boolean[] childrenBlackList = new boolean[instances.numAttributes()];
+		
+		for (int i = 0; i < instances.numAttributes(); i++) {
+			TreeMap<Double, Integer> tmpBestChildrenMap = attributeBestChildrenList.get(i);
+			TreeMap<Double, Integer> tmpBestParentsMap = attributeBestParentsList.get(i);
+			int numOfAddedRules = 0;
+			
+			double bestChildKey = Double.MAX_VALUE;//+infinity
+			double bestParentKey = Double.MAX_VALUE;//+infinity
+			
+			if(tmpBestChildrenMap.keySet().toArray().length != 0){
+				bestChildKey = (double)tmpBestChildrenMap.keySet().toArray()[0];
+			}
+			
+			if(tmpBestParentsMap.keySet().toArray().length != 0){
+				bestParentKey = (double)tmpBestParentsMap.keySet().toArray()[0];
+			}
+			
+			//if child is better than parent (entropies comparison)
+			if(bestChildKey < bestParentKey){
+				int numOfParentsForCurrentChild = bayesNet.getParentSet(tmpBestChildrenMap.get(bestChildKey)).getNrOfParents();
+				
+				if (numOfAddedRules < getMaxNrOfChildren() &&
+						numOfParentsForCurrentChild < getMaxNrOfParents() &&
+						numOfAddedRules < tmpBestChildrenMap.size() &&
+						NewBNUtils.countNumOfChildren(bayesNet, instances, i) < getMaxNrOfChildren() &&
+						!bayesNet.getParentSet(tmpBestChildrenMap.get(bestChildKey)).contains(i) &&
+						!childrenBlackList[tmpBestChildrenMap.get(bestChildKey)] &&
+						tmpBestParentsMap.get(bestParentKey) != null &&
+						!parentsBlackList[tmpBestParentsMap.get(bestParentKey)]
+					){
+					bayesNet.getParentSet(tmpBestChildrenMap.get(bestChildKey)).addParent(i, instances);
+					childrenBlackList[tmpBestChildrenMap.get(bestChildKey)] = true;
+				}
+			} else if (numOfAddedRules < getMaxNrOfParents() && 
+					numOfAddedRules < tmpBestParentsMap.size() &&
+					NewBNUtils.countNumOfChildren(bayesNet, instances, tmpBestParentsMap.get(bestParentKey)) < getMaxNrOfChildren() &&
+					!bayesNet.getParentSet(i).contains(tmpBestParentsMap.get(bestParentKey)) &&
+					!parentsBlackList[tmpBestParentsMap.get(bestParentKey)] &&
+					tmpBestChildrenMap.get(bestChildKey) != null &&
+					!childrenBlackList[tmpBestChildrenMap.get(bestChildKey)]
+				){
+				bayesNet.getParentSet(i).addParent(tmpBestParentsMap.get(bestParentKey), instances);
+				parentsBlackList[tmpBestParentsMap.get(bestParentKey)] = true;
+			}
+		}
+	}
+
+	/**
+	 * Calculate conditional entropies
+	 * 
+	 * @param instances
+	 * @param entropyRuleMap
+	 * @param entropyChildFromParentMap
+	 * @param entropyParentToChildMap
+	 */
+	private void calculateContingencyTables(Instances instances, TreeMap<Double, String> entropyRuleMap,
+			TreeMap<Double, Entry<Integer, Integer>> entropyChildFromParentMap,
+			TreeMap<Double, Entry<Integer, Integer>> entropyParentToChildMap) {
 		for (int i = 0; i < instances.numAttributes(); i++) {
 			for (int j = 0; j < i; j++) {
 				double entropyConditionedOnRows = ContingencyTables.entropyConditionedOnRows(attributeMatrix[i][j]);
@@ -113,82 +166,47 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm{
 				if (entropyConditionedOnRows < entropyConditionedOnColumns) {
 					attributeBestParentsList.get(j).put(lowestEntropy, i);
 					attributeBestChildrenList.get(i).put(lowestEntropy, j);
-					entropyChildFromParentMap.put(lowestEntropy, new AbstractMap.SimpleEntry<Integer,Integer>(j,i));
-					entropyParentToChildMap.put(lowestEntropy, new AbstractMap.SimpleEntry<Integer,Integer>(i,j));
+					entropyChildFromParentMap.put(lowestEntropy, new AbstractMap.SimpleEntry<>(j,i));
+					entropyParentToChildMap.put(lowestEntropy, new AbstractMap.SimpleEntry<>(i,j));
 				} else {
 					attributeBestParentsList.get(i).put(lowestEntropy, j);
 					attributeBestChildrenList.get(j).put(lowestEntropy, i);
-					entropyChildFromParentMap.put(lowestEntropy, new AbstractMap.SimpleEntry<Integer,Integer>(i,j));
-					entropyParentToChildMap.put(lowestEntropy, new AbstractMap.SimpleEntry<Integer,Integer>(j,i));
+					entropyChildFromParentMap.put(lowestEntropy, new AbstractMap.SimpleEntry<>(i,j));
+					entropyParentToChildMap.put(lowestEntropy, new AbstractMap.SimpleEntry<>(j,i));
 				}
 			}
 		}
+	}
 
-		//Greedy algorithm: for each attribute take best child or parent, having the lower entropy
-		//if true not usable, if false (default) usable
-		boolean parentsBlackList[] = new boolean[instances.numAttributes()];
-		boolean childrenBlackList[] = new boolean[instances.numAttributes()];
-		
-		for (int i = 0; i < instances.numAttributes(); i++) {
-			TreeMap<Double, Integer> tmpBestChildrenMap = attributeBestChildrenList.get(i);
-			TreeMap<Double, Integer> tmpBestParentsMap = attributeBestParentsList.get(i);
-			int numOfAddedRules = 0;
-			
-			double bestChildKey = Double.MAX_VALUE;//+infinity
-			double bestParentKey = Double.MAX_VALUE;//+infinity
-			
-			if(tmpBestChildrenMap.keySet().toArray().length != 0){
-				bestChildKey = (double)tmpBestChildrenMap.keySet().toArray()[0];
-			}
-			
-			if(tmpBestParentsMap.keySet().toArray().length != 0){
-				bestParentKey = (double)tmpBestParentsMap.keySet().toArray()[0];
-			}
-			
-//			System.out.println("BestParentsAndChildrenOriginalSearch " + i + ": " + bestChildKey + "(" + tmpBestChildrenMap.get(bestChildKey) +  ") < " + bestParentKey + "(" + tmpBestParentsMap.get(bestParentKey) + ")");
-			
-			if(bestChildKey < bestParentKey){//if child is better than parent (entropies comparison)
-				int numOfParentsForCurrentChild = bayesNet.getParentSet(tmpBestChildrenMap.get(bestChildKey)).getNrOfParents();
-				
-				if (
-						numOfAddedRules < getMaxNrOfChildren() &&
-						numOfParentsForCurrentChild < getMaxNrOfParents() &&
-						numOfAddedRules < tmpBestChildrenMap.size() &&
-						NewBNUtils.countNumOfChildren(bayesNet, instances, i) < getMaxNrOfChildren() &&
-						!bayesNet.getParentSet(tmpBestChildrenMap.get(bestChildKey)).contains(i) &&
-						!childrenBlackList[tmpBestChildrenMap.get(bestChildKey)] &&
-						tmpBestParentsMap.get(bestParentKey) != null &&
-						!parentsBlackList[tmpBestParentsMap.get(bestParentKey)]
-					){
-					bayesNet.getParentSet(tmpBestChildrenMap.get(bestChildKey)).addParent(i, instances);
-					numOfAddedRules++;
-					childrenBlackList[tmpBestChildrenMap.get(bestChildKey)] = true;
-//					System.out.println("BestParentsAndChildrenOriginalSearch " + i + " -> " + tmpBestChildrenMap.get(bestChildKey));
+	/**
+	 * Count occurrences
+	 * 
+	 * @param instances
+	 */
+	private void count(Instances instances) {
+		for (int n = 0; n < instances.numInstances(); n++) {
+			for (int i = 0; i < instances.numAttributes(); i++) {
+				for (int j = 0; j < i; j++) {
+					int iAttrIndex = (int) instances.instance(n).value(i);
+					int jAttrIndex = (int) instances.instance(n).value(j);
+					attributeMatrix[i][j][iAttrIndex][jAttrIndex]++;
 				}
-				
-				//bayesNet.getParentSet(tmpBestChildrenMap.get(bestChildKey)).addParent(i, instances);
-			}else{
-				if (
-						numOfAddedRules < getMaxNrOfParents() && 
-						numOfAddedRules < tmpBestParentsMap.size() &&
-						NewBNUtils.countNumOfChildren(bayesNet, instances, tmpBestParentsMap.get(bestParentKey)) < getMaxNrOfChildren() &&
-						!bayesNet.getParentSet(i).contains(tmpBestParentsMap.get(bestParentKey)) &&
-						!parentsBlackList[tmpBestParentsMap.get(bestParentKey)] &&
-						tmpBestChildrenMap.get(bestChildKey) != null &&
-						!childrenBlackList[tmpBestChildrenMap.get(bestChildKey)]
-					){
-					bayesNet.getParentSet(i).addParent(tmpBestParentsMap.get(bestParentKey), instances);
-					numOfAddedRules++;
-					parentsBlackList[tmpBestParentsMap.get(bestParentKey)] = true;
-//					System.out.println("BestParentsAndChildrenOriginalSearch " + tmpBestParentsMap.get(bestParentKey) + " <- " + i);
-				}
-				
-				//bayesNet.getParentSet(i).addParent(tmpBestParentsMap.get(bestParentKey), instances);
 			}
 		}
-		
-//		System.out.println("\nBestParentsAndChildrenOriginalSearch: complete");
-	} // buildStructure
+	}
+
+	/**
+	 * Allocate memory
+	 * 
+	 * @param instances
+	 */
+	private void allocate(Instances instances) {
+		for (int j = 0; j < instances.numAttributes(); j++) {
+			for (int k = 0; k < j; k++) {
+				attributeMatrix[j][k] = new double[instances.attribute(j).numValues()][instances.attribute(k).numValues()];
+			}
+		}
+	}
 	
 	/**
 	 * Sets the max number of parents
@@ -216,7 +234,7 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm{
 	 *            the max number of children
 	 */
 	public void setMaxNrOfChildren(int nMaxNrOfChildren) {
-		m_nMaxNrOfChildren = nMaxNrOfChildren;
+		maxNrOfChildren = nMaxNrOfChildren;
 	}
 
 	/**
@@ -225,6 +243,7 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm{
 	 * @return the max number of children
 	 */
 	public int getMaxNrOfChildren() {
-		return m_nMaxNrOfChildren;
+		return maxNrOfChildren;
 	}
+	
 }
