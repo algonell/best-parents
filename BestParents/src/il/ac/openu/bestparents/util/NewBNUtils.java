@@ -10,11 +10,12 @@ import weka.core.Instances;
 import weka.core.Utils;
 
 /**
- * Holds misc utils for the new Bayesian Network structure learning algorithm
+ * Holds misc utils for the new Bayesian Network structure learning algorithm.
  * 
  * @author Andrew Kreimer
  */
 public abstract class NewBNUtils {
+	
 	/**
 	 * Creates attribute distribution description
 	 * 
@@ -157,4 +158,7 @@ public abstract class NewBNUtils {
 		}
 		return splitData;
 	}
+	
+	private NewBNUtils() {}
+	
 }
