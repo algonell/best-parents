@@ -14,7 +14,7 @@ import weka.core.Utils;
  * 
  * @author Andrew Kreimer
  */
-public abstract class NewBNUtils {
+public abstract class BnUtils {
 	
 	/**
 	 * Creates attribute distribution description
@@ -159,6 +159,6 @@ public abstract class NewBNUtils {
 		return splitData;
 	}
 	
-	private NewBNUtils() {}
+	private BnUtils() {}
 	
 }

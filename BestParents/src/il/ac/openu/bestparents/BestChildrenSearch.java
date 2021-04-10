@@ -96,7 +96,7 @@ public class BestChildrenSearch extends SearchAlgorithm {
 				if (numOfAddedRules < getMaxNrOfChildren() &&
 						numOfParentsForCurrentChild < getMaxNrOfChildren() &&
 						numOfAddedRules < tmpTreeMap.size() &&
-						NewBNUtils.countNumOfChildren(bayesNet, instances, i) < getMaxNrOfChildren() &&
+						BnUtils.countNumOfChildren(bayesNet, instances, i) < getMaxNrOfChildren() &&
 						!bayesNet.getParentSet(value).contains(i)){
 					bayesNet.getParentSet(value).addParent(i, instances);
 					numOfAddedRules++;

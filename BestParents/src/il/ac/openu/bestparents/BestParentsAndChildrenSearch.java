@@ -114,7 +114,7 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm{
 				if (numOfAddedRules < getMaxNrOfChildren() &&
 						numOfParentsForCurrentChild < getMaxNrOfParents() &&
 						numOfAddedRules < tmpBestChildrenMap.size() &&
-						NewBNUtils.countNumOfChildren(bayesNet, instances, i) < getMaxNrOfChildren() &&
+						BnUtils.countNumOfChildren(bayesNet, instances, i) < getMaxNrOfChildren() &&
 						!bayesNet.getParentSet(tmpBestChildrenMap.get(bestChildKey)).contains(i) &&
 						!childrenBlackList[tmpBestChildrenMap.get(bestChildKey)] &&
 						tmpBestParentsMap.get(bestParentKey) != null &&
@@ -125,7 +125,7 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm{
 				}
 			} else if (numOfAddedRules < getMaxNrOfParents() && 
 					numOfAddedRules < tmpBestParentsMap.size() &&
-					NewBNUtils.countNumOfChildren(bayesNet, instances, tmpBestParentsMap.get(bestParentKey)) < getMaxNrOfChildren() &&
+					BnUtils.countNumOfChildren(bayesNet, instances, tmpBestParentsMap.get(bestParentKey)) < getMaxNrOfChildren() &&
 					!bayesNet.getParentSet(i).contains(tmpBestParentsMap.get(bestParentKey)) &&
 					!parentsBlackList[tmpBestParentsMap.get(bestParentKey)] &&
 					tmpBestChildrenMap.get(bestChildKey) != null &&
