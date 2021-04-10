@@ -27,19 +27,20 @@ import weka.core.ContingencyTables;
 import weka.core.Instances;
 
 /**
- * @author Andrew Kreimer, algonell.com
+ * Best parents search.
+ * 
+ * @author Andrew Kreimer
  */
-public class BestParentsSearch extends SearchAlgorithm{
+public class BestParentsSearch extends SearchAlgorithm {
 
 	private static final long serialVersionUID = -8315181456697597693L;
 
 	/**
-	 * @param bayesNet
-	 *            the network
-	 * @param instances
-	 *            the data to work with
-	 * @throws Exception
-	 *             if something goes wrong
+	 * Performs path search.
+	 * 
+	 * @param bayesNet the network
+	 * @param instances the data to work with
+	 * @throws Exception if something goes wrong
 	 */
 	@Override
 	public void search(BayesNet bayesNet, Instances instances) throws Exception {
@@ -79,7 +80,8 @@ public class BestParentsSearch extends SearchAlgorithm{
 	}
 
 	/**
-	 * Finds the best parents for each attribute by conditional entropy and greedy algorithm
+	 * Finds the best parents for each attribute by conditional entropy and greedy algorithm.
+	 * 
 	 * @param instances
 	 * @param attributeMatrix
 	 * @param attributeBestParentsList
@@ -120,9 +122,9 @@ public class BestParentsSearch extends SearchAlgorithm{
 	}
 
 	/**
-	 * Allocates List of Map: Map of best parents for each attribute 
+	 * Allocates List of Map: Map of best parents for each attribute.
+	 *  
 	 * @param instances
-	 * @return
 	 */
 	private ArrayList<TreeMap<Double, Integer>> allocateAttributeMaps(Instances instances) {
 		ArrayList<TreeMap<Double, Integer>> attributeBestParentsList = new ArrayList<>();
@@ -137,7 +139,8 @@ public class BestParentsSearch extends SearchAlgorithm{
 	}
 
 	/**
-	 * Counts instances for each attribute and category
+	 * Counts instances for each attribute and category.
+	 * 
 	 * @param instances
 	 * @param attributeMatrix
 	 */
@@ -154,9 +157,9 @@ public class BestParentsSearch extends SearchAlgorithm{
 	}
 
 	/**
-	 * Allocates contingency matrix for each attribute-attribute pair
+	 * Allocates contingency matrix for each attribute-attribute pair.
+	 * 
 	 * @param instances
-	 * @return
 	 */
 	private double[][][][] allocateAttributeMatrix(Instances instances) {
 		double[][][][] attributeMatrix = new double[instances.numAttributes()][instances.numAttributes()][][];
@@ -172,10 +175,7 @@ public class BestParentsSearch extends SearchAlgorithm{
 	}
 	
 	/**
-	 * Sets the max number of parents
-	 * 
-	 * @param nMaxNrOfParents
-	 *            the max number of parents
+	 * Sets the max number of parents.
 	 */
 	public void setMaxNrOfParents(int nMaxNrOfParents) {
 		m_nMaxNrOfParents = nMaxNrOfParents;
@@ -183,8 +183,6 @@ public class BestParentsSearch extends SearchAlgorithm{
 
 	/**
 	 * Gets the max number of parents.
-	 * 
-	 * @return the max number of parents
 	 */
 	public int getMaxNrOfParents() {
 		return m_nMaxNrOfParents;

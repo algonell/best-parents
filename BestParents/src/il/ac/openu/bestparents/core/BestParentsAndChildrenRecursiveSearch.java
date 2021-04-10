@@ -27,7 +27,9 @@ import weka.core.ContingencyTables;
 import weka.core.Instances;
 
 /**
- * @author Andrew Kreimer - algonell.com
+ * Bes parents and children recursive search.
+ * 
+ * @author Andrew Kreimer
  */
 public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 
@@ -41,12 +43,11 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 	ArrayList<TreeMap<Double, Integer>> attributeBestParentsAndChildrenList;
 	
 	/**
-	 * @param bayesNet
-	 *            the network
-	 * @param instances
-	 *            the data to work with
-	 * @throws Exception
-	 *             if something goes wrong
+	 * Performs path search.
+	 * 
+	 * @param bayesNet the network
+	 * @param instances the data to work with
+	 * @throws Exception if something goes wrong
 	 */
 	@Override
 	public void search(BayesNet bayesNet, Instances instances) throws Exception {
@@ -115,7 +116,7 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 	}
 
 	/**
-	 * Count occurrences
+	 * Counts occurrences.
 	 * 
 	 * @param instances
 	 */
@@ -132,7 +133,7 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 	}
 
 	/**
-	 * Allocate memory
+	 * Allocates memory.
 	 * 
 	 * @param instances
 	 */
@@ -145,10 +146,7 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 	}
 
 	/**
-	 * Sets the max number of parents
-	 * 
-	 * @param nMaxNrOfParents
-	 *            the max number of parents
+	 * Sets the max number of parents.
 	 */
 	public void setMaxNrOfParents(int nMaxNrOfParents) {
 		m_nMaxNrOfParents = nMaxNrOfParents;
@@ -156,18 +154,13 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 
 	/**
 	 * Gets the max number of parents.
-	 * 
-	 * @return the max number of parents
 	 */
 	public int getMaxNrOfParents() {
 		return m_nMaxNrOfParents;
 	}
 
 	/**
-	 * Sets the max number of children
-	 * 
-	 * @param nMaxNrOfChildren
-	 *            the max number of children
+	 * Sets the max number of children.
 	 */
 	public void setMaxNrOfChildren(int nMaxNrOfChildren) {
 		maxNrOfChildren = nMaxNrOfChildren;
@@ -175,22 +168,21 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 
 	/**
 	 * Gets the max number of children.
-	 * 
-	 * @return the max number of children
 	 */
 	public int getMaxNrOfChildren() {
 		return maxNrOfChildren;
 	}
 
 	/**
+	 * Adds nodes.
+	 * 
 	 * Recursive algorithm: start with class by adding best parent and child,
 	 * expand for child and parent the same algorithm till no more attributes
-	 * left
+	 * left.
 	 * 
 	 * @param bayesNet
 	 * @param instances
-	 * @param i
-	 *            - attribute
+	 * @param i attribute
 	 */
 	private void addBestParentsAndChildren(BayesNet bayesNet, Instances instances, int i, boolean[] blackList) {
 		TreeMap<Double, Integer> tmpBestChildrenMap = attributeBestChildrenList.get(i);
@@ -237,7 +229,7 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 	}
 
 	/**
-	 * Expands parent's path
+	 * Expands parent's path.
 	 * 
 	 * @param path
 	 */
@@ -268,7 +260,7 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 	}
 
 	/**
-	 * Expands child's path
+	 * Expands child's path.
 	 * 
 	 * @param path
 	 */
@@ -299,6 +291,8 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 	}
 
 	/**
+	 * Adds nodes.
+	 * 
 	 * Iterative algorithm: start with class by adding best parent and child,
 	 * expand for child and parent the same algorithm till no more attributes
 	 * left. Use queue instead of recursive expansion.
@@ -344,7 +338,7 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 	}
 
 	/**
-	 * Adds best children
+	 * Adds best children.
 	 * 
 	 * @param bayesNet
 	 * @param instances
@@ -375,7 +369,7 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 	}
 
 	/**
-	 * Adds best parents
+	 * Adds best parents.
 	 * 
 	 * @param bayesNet
 	 * @param instances

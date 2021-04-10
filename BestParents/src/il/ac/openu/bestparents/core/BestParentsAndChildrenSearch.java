@@ -26,7 +26,9 @@ import weka.core.ContingencyTables;
 import weka.core.Instances;
 
 /**
- * @author Andrew Kreimer - algonell.com
+ * Best parents and children search.
+ * 
+ * @author Andrew Kreimer
  */
 public class BestParentsAndChildrenSearch extends SearchAlgorithm{
 
@@ -40,12 +42,11 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm{
 	ArrayList<TreeMap<Double, Integer>> attributeBestParentsAndChildrenList;
 	
 	/**
-	 * @param bayesNet
-	 *            the network
-	 * @param instances
-	 *            the data to work with
-	 * @throws Exception
-	 *             if something goes wrong
+	 * Performs path search.
+	 * 
+	 * @param bayesNet the network
+	 * @param instances the data to work with
+	 * @throws Exception if something goes wrong
 	 */
 	@Override
 	public void search(BayesNet bayesNet, Instances instances) throws Exception {
@@ -138,7 +139,7 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm{
 	}
 
 	/**
-	 * Calculate conditional entropies
+	 * Calculates conditional entropies.
 	 * 
 	 * @param instances
 	 * @param entropyRuleMap
@@ -179,7 +180,7 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm{
 	}
 
 	/**
-	 * Count occurrences
+	 * Counts occurrences.
 	 * 
 	 * @param instances
 	 */
@@ -196,7 +197,7 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm{
 	}
 
 	/**
-	 * Allocate memory
+	 * Allocates memory.
 	 * 
 	 * @param instances
 	 */
@@ -209,10 +210,7 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm{
 	}
 	
 	/**
-	 * Sets the max number of parents
-	 * 
-	 * @param nMaxNrOfParents
-	 *            the max number of parents
+	 * Sets the max number of parents.
 	 */
 	public void setMaxNrOfParents(int nMaxNrOfParents) {
 		m_nMaxNrOfParents = nMaxNrOfParents;
@@ -220,18 +218,13 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm{
 
 	/**
 	 * Gets the max number of parents.
-	 * 
-	 * @return the max number of parents
 	 */
 	public int getMaxNrOfParents() {
 		return m_nMaxNrOfParents;
 	}
 	
 	/**
-	 * Sets the max number of children
-	 * 
-	 * @param nMaxNrOfChildren
-	 *            the max number of children
+	 * Sets the max number of children.
 	 */
 	public void setMaxNrOfChildren(int nMaxNrOfChildren) {
 		maxNrOfChildren = nMaxNrOfChildren;
@@ -239,8 +232,6 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm{
 
 	/**
 	 * Gets the max number of children.
-	 * 
-	 * @return the max number of children
 	 */
 	public int getMaxNrOfChildren() {
 		return maxNrOfChildren;

@@ -27,7 +27,9 @@ import weka.core.ContingencyTables;
 import weka.core.Instances;
 
 /**
- * @author Andrew Kreimer - algonell.com
+ * Best children search.
+ * 
+ * @author Andrew Kreimer
  */
 public class BestChildrenSearch extends SearchAlgorithm {
 
@@ -37,18 +39,16 @@ public class BestChildrenSearch extends SearchAlgorithm {
 	private double[][][][] attributeMatrix;
 	
 	/**
-	 * @param bayesNet
-	 *            the network
-	 * @param instances
-	 *            the data to work with
-	 * @throws Exception
-	 *             if something goes wrong
+	 * Performs path search.
+	 * 
+	 * @param bayesNet the network
+	 * @param instances the data to work with
+	 * @throws Exception if something goes wrong
 	 */
 	@Override
 	public void search(BayesNet bayesNet, Instances instances) throws Exception {
 		// contingency table for each attribute X attribute matrix
-		attributeMatrix = new double[instances.numAttributes()][instances
-				.numAttributes()][][];
+		attributeMatrix = new double[instances.numAttributes()][instances.numAttributes()][][];
 
 		// allocate
 		allocate(instances);
@@ -79,14 +79,13 @@ public class BestChildrenSearch extends SearchAlgorithm {
 	}
 
 	/**
-	 * Assembles network 
+	 * Assembles network.
 	 * 
 	 * @param bayesNet
 	 * @param instances
 	 * @param attributeBestChildrenList
 	 */
-	private void assembleNetwork(BayesNet bayesNet, Instances instances,
-			ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList) {
+	private void assembleNetwork(BayesNet bayesNet, Instances instances, ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList) {
 		for (int i = 0; i < instances.numAttributes(); i++) {
 			TreeMap<Double, Integer> tmpTreeMap = attributeBestChildrenList.get(i);
 			int numOfAddedRules = 0;
@@ -108,7 +107,7 @@ public class BestChildrenSearch extends SearchAlgorithm {
 	}
 
 	/**
-	 * Calculate conditional entropies
+	 * Calculates conditional entropies.
 	 * 
 	 * @param instances
 	 * @param attributeBestChildrenList
@@ -145,7 +144,7 @@ public class BestChildrenSearch extends SearchAlgorithm {
 	}
 
 	/**
-	 * Count occurances
+	 * Counts occurrences.
 	 * 
 	 * @param instances
 	 */
@@ -162,7 +161,7 @@ public class BestChildrenSearch extends SearchAlgorithm {
 	}
 
 	/**
-	 * Allocate memory
+	 * Allocates memory.
 	 * 
 	 * @param instances
 	 */
@@ -176,10 +175,7 @@ public class BestChildrenSearch extends SearchAlgorithm {
 	}
 	
 	/**
-	 * Sets the max number of children
-	 * 
-	 * @param nMaxNrOfChildren
-	 *            the max number of children
+	 * Sets the max number of children.
 	 */
 	public void setMaxNrOfChildren(int nMaxNrOfChildren) {
 		maxNrOfChildren = nMaxNrOfChildren;
@@ -187,10 +183,9 @@ public class BestChildrenSearch extends SearchAlgorithm {
 
 	/**
 	 * Gets the max number of children.
-	 * 
-	 * @return the max number of children
 	 */
 	public int getMaxNrOfChildren() {
 		return maxNrOfChildren;
 	}
+	
 }
