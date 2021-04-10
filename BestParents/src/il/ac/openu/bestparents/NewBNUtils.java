@@ -1,4 +1,4 @@
-package il.ac.openu.bestparents.util;
+package il.ac.openu.bestparents;
 
 import java.util.Enumeration;
 import java.util.Map;

@@ -12,7 +12,7 @@
  *   You should have received a copy of the GNU General Public License
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
-package il.ac.openu.bestparents.core;
+package il.ac.openu.bestparents;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;

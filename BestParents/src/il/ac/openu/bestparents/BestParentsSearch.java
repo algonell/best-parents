@@ -13,14 +13,13 @@
  *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
  */
 
-package il.ac.openu.bestparents.core;
+package il.ac.openu.bestparents;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 
-import il.ac.openu.bestparents.util.NewBNUtils;
 import weka.classifiers.bayes.BayesNet;
 import weka.classifiers.bayes.net.search.SearchAlgorithm;
 import weka.core.ContingencyTables;

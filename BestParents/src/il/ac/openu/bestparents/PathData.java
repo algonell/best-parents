@@ -3,7 +3,7 @@
  * Algonell Confidential
  * All Rights Reserved
  ******************************************************************************/
-package il.ac.openu.bestparents.core;
+package il.ac.openu.bestparents;
 
 import java.util.SortedMap;
 
