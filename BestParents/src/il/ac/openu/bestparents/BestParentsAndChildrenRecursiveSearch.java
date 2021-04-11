@@ -47,10 +47,9 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 	 * 
 	 * @param bayesNet the network
 	 * @param instances the data to work with
-	 * @throws Exception if something goes wrong
 	 */
 	@Override
-	public void search(BayesNet bayesNet, Instances instances) throws Exception {
+	public void search(BayesNet bayesNet, Instances instances) {
 		// contingency table for each attribute X attribute matrix
 		attributeMatrix = new double[instances.numAttributes()][instances.numAttributes()][][];
 
