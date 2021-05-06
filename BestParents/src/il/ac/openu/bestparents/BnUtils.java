@@ -26,10 +26,10 @@ public abstract class BnUtils {
 	 * @param attribute
 	 * @param distributions
 	 */
-	public static String makeAttributeDistributionsStr(Attribute attribute, double distributions[]) {
-		StringBuilder sb = new StringBuilder();
+	public static String makeAttributeDistributionsStr(Attribute attribute, double[] distributions) {
+		var sb = new StringBuilder();
 
-		for (int i = 0; i < distributions.length - 1; i++) {
+		for (var i = 0; i < distributions.length - 1; i++) {
 			sb.append(attribute.value(i) + " " + distributions[i] + "%, ");
 		}
 
@@ -45,9 +45,9 @@ public abstract class BnUtils {
 	 * @param iNode
 	 */
 	public static int countNumOfChildren(BayesNet bayesNet, Instances instances, int iNode) {
-		int counter = 0;
+		var counter = 0;
 
-		for (int i = 0; i < instances.numAttributes(); i++) {
+		for (var i = 0; i < instances.numAttributes(); i++) {
 			if (bayesNet.getParentSet(i).contains(iNode)) {
 				counter++;
 			}
@@ -63,23 +63,23 @@ public abstract class BnUtils {
 	}
 
 	public static void printParentSet(BayesNet bayesNet, Instances instances) {
-		for (int i = 0; i < instances.numAttributes(); i++) {
-			String attrIndex = String.format("Attribute: %s", i);
+		for (var i = 0; i < instances.numAttributes(); i++) {
+			var attrIndex = String.format("Attribute: %s", i);
 			LOGGER.info(attrIndex);
 			LOGGER.info("CardinalityOfParents: " + bayesNet.getParentSet(i).getCardinalityOfParents());
 			LOGGER.info("NrOfParents: " + bayesNet.getParentSet(i).getNrOfParents());
 			
-			for (int j = 0; j < bayesNet.getParentSet(i).getNrOfParents(); j++) {
-				String parentsSet = String.format("ParentSet[%s]: %s", j, bayesNet.getParentSet(i).getParent(j));
+			for (var j = 0; j < bayesNet.getParentSet(i).getNrOfParents(); j++) {
+				var parentsSet = String.format("ParentSet[%s]: %s", j, bayesNet.getParentSet(i).getParent(j));
 				LOGGER.info(parentsSet);
 			}
 		}
 	}
 
 	public static void printMatrix(double[][] matrix) {
-		for (int i = 0; i < matrix.length; i++) {
-			for (int j = 0; j < matrix[0].length; j++) {
-				String matrixEntry = String.format("%s ", matrix[i][j]);
+		for (var i = 0; i < matrix.length; i++) {
+			for (var j = 0; j < matrix[0].length; j++) {
+				var matrixEntry = String.format("%s ", matrix[i][j]);
 				LOGGER.info(matrixEntry);
 			}
 			
@@ -98,7 +98,7 @@ public abstract class BnUtils {
 		double infoGain = computeEntropy(data);
 		Instances[] splitData = splitData(data, att);
 		
-		for (int j = 0; j < att.numValues(); j++) {
+		for (var j = 0; j < att.numValues(); j++) {
 			if (splitData[j].numInstances() > 0) {
 				infoGain -= ((double) splitData[j].numInstances() / (double) data.numInstances())
 						* computeEntropy(splitData[j]);
@@ -115,7 +115,7 @@ public abstract class BnUtils {
 	 * @return the entropy of the data's class distribution
 	 */
 	public static double computeEntropy(Instances data) {
-		double[] classCounts = new double[data.numClasses()];
+		var classCounts = new double[data.numClasses()];
 		@SuppressWarnings("rawtypes")
 		Enumeration instEnum = data.enumerateInstances();
 		
@@ -126,7 +126,7 @@ public abstract class BnUtils {
 		
 		double entropy = 0;
 		
-		for (int j = 0; j < data.numClasses(); j++) {
+		for (var j = 0; j < data.numClasses(); j++) {
 			if (classCounts[j] > 0) {
 				entropy -= classCounts[j] * Utils.log2(classCounts[j]);
 			}
@@ -146,9 +146,9 @@ public abstract class BnUtils {
 	 * @return the sets of instances produced by the split
 	 */
 	public static Instances[] splitData(Instances data, Attribute att) {
-		Instances[] splitData = new Instances[att.numValues()];
+		var splitData = new Instances[att.numValues()];
 		
-		for (int j = 0; j < att.numValues(); j++) {
+		for (var j = 0; j < att.numValues(); j++) {
 			splitData[j] = new Instances(data, data.numInstances());
 		}
 		
@@ -160,7 +160,7 @@ public abstract class BnUtils {
 			splitData[(int) inst.value(att)].add(inst);
 		}
 		
-		for (int i = 0; i < splitData.length; i++) {
+		for (var i = 0; i < splitData.length; i++) {
 			splitData[i].compactify();
 		}
 		

@@ -58,7 +58,7 @@ public class BestChildrenSearch extends SearchAlgorithm {
 		ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList = new ArrayList<>();
 		
 		//allocate
-		for (int i = 0; i < instances.numAttributes(); i++) {
+		for (var i = 0; i < instances.numAttributes(); i++) {
 			TreeMap<Double, Integer> tmpTreeMap = new TreeMap<>();
 			attributeBestChildrenList.add(i, tmpTreeMap);
 		}
@@ -84,9 +84,9 @@ public class BestChildrenSearch extends SearchAlgorithm {
 	 * @param attributeBestChildrenList
 	 */
 	private void assembleNetwork(BayesNet bayesNet, Instances instances, ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList) {
-		for (int i = 0; i < instances.numAttributes(); i++) {
+		for (var i = 0; i < instances.numAttributes(); i++) {
 			TreeMap<Double, Integer> tmpTreeMap = attributeBestChildrenList.get(i);
-			int numOfAddedRules = 0;
+			var numOfAddedRules = 0;
 			
 			for (Entry<Double, Integer> entry : tmpTreeMap.entrySet()) {
 				int value = entry.getValue();
@@ -115,8 +115,8 @@ public class BestChildrenSearch extends SearchAlgorithm {
 	private void calculateContingencyTables(Instances instances,
 			ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList, TreeMap<Double, String> entropyRuleMap,
 			TreeMap<Double, Entry<Integer, Integer>> entropyParentToChildMap) {
-		for (int i = 0; i < instances.numAttributes(); i++) {
-			for (int j = 0; j < i; j++) {
+		for (var i = 0; i < instances.numAttributes(); i++) {
+			for (var j = 0; j < i; j++) {
 				double entropyConditionedOnRows = ContingencyTables.entropyConditionedOnRows(attributeMatrix[i][j]);
 				double entropyConditionedOnColumns = ContingencyTables.entropyConditionedOnColumns(attributeMatrix[i][j]);
 
@@ -147,9 +147,9 @@ public class BestChildrenSearch extends SearchAlgorithm {
 	 * @param instances
 	 */
 	private void count(Instances instances) {
-		for (int n = 0; n < instances.numInstances(); n++) {
-			for (int i = 0; i < instances.numAttributes(); i++) {
-				for (int j = 0; j < i; j++) {
+		for (var n = 0; n < instances.numInstances(); n++) {
+			for (var i = 0; i < instances.numAttributes(); i++) {
+				for (var j = 0; j < i; j++) {
 					int iAttrIndex = (int) instances.instance(n).value(i);
 					int jAttrIndex = (int) instances.instance(n).value(j);
 					attributeMatrix[i][j][iAttrIndex][jAttrIndex]++;
@@ -164,8 +164,8 @@ public class BestChildrenSearch extends SearchAlgorithm {
 	 * @param instances
 	 */
 	private void allocate(Instances instances) {
-		for (int j = 0; j < instances.numAttributes(); j++) {
-			for (int k = 0; k < j; k++) {
+		for (var j = 0; j < instances.numAttributes(); j++) {
+			for (var k = 0; k < j; k++) {
 				attributeMatrix[j][k] = new double[instances.attribute(j)
 						.numValues()][instances.attribute(k).numValues()];
 			}

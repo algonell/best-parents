@@ -66,7 +66,7 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 		attributeBestParentsAndChildrenList = new ArrayList<>();
 
 		// allocate
-		for (int i = 0; i < instances.numAttributes(); i++) {
+		for (var i = 0; i < instances.numAttributes(); i++) {
 			TreeMap<Double, Integer> tmpTreeMap = null;
 			tmpTreeMap = new TreeMap<>();
 			attributeBestParentsList.add(i, tmpTreeMap);
@@ -86,8 +86,8 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 		TreeMap<Double, Entry<Integer, Integer>> entropyParentToChildMap = new TreeMap<>();
 
 		// calculate conditional entropy for contingency tables
-		for (int i = 0; i < instances.numAttributes(); i++) {
-			for (int j = 0; j < i; j++) {
+		for (var i = 0; i < instances.numAttributes(); i++) {
+			for (var j = 0; j < i; j++) {
 				double entropyConditionedOnRows = ContingencyTables.entropyConditionedOnRows(attributeMatrix[i][j]);
 				double entropyConditionedOnColumns = ContingencyTables.entropyConditionedOnColumns(attributeMatrix[i][j]);
 
@@ -120,9 +120,9 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 	 * @param instances
 	 */
 	private void count(Instances instances) {
-		for (int n = 0; n < instances.numInstances(); n++) {
-			for (int i = 0; i < instances.numAttributes(); i++) {
-				for (int j = 0; j < i; j++) {
+		for (var n = 0; n < instances.numInstances(); n++) {
+			for (var i = 0; i < instances.numAttributes(); i++) {
+				for (var j = 0; j < i; j++) {
 					int iAttrIndex = (int) instances.instance(n).value(i);
 					int jAttrIndex = (int) instances.instance(n).value(j);
 					attributeMatrix[i][j][iAttrIndex][jAttrIndex]++;
@@ -137,8 +137,8 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 	 * @param instances
 	 */
 	private void allocate(Instances instances) {
-		for (int j = 0; j < instances.numAttributes(); j++) {
-			for (int k = 0; k < j; k++) {
+		for (var j = 0; j < instances.numAttributes(); j++) {
+			for (var k = 0; k < j; k++) {
 				attributeMatrix[j][k] = new double[instances.attribute(j).numValues()][instances.attribute(k).numValues()];
 			}
 		}
@@ -201,12 +201,12 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 		Integer bestChild = tmpBestChildrenMap.get(bestChildKey);
 		Integer bestParent = tmpBestParentsMap.get(bestParentKey);
 
-		boolean expandToChild = false;
-		boolean expandToParent = false;
+		var expandToChild = false;
+		var expandToParent = false;
 
 		// order matters, best child or parent could be stolen because of
 		// execution order!
-		PathData path = new PathData();
+		var path = new PathData();
 		path.setBayesNet(bayesNet);
 		path.setInstances(instances);
 		path.setI(i);
@@ -306,7 +306,7 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 		TreeMap<Double, Integer> expansionOrder = new TreeMap<>();
 
 		// blackList: mark Class as used
-		boolean[] blackList = new boolean[instances.numAttributes()];
+		var blackList = new boolean[instances.numAttributes()];
 		blackList[startingAttribute] = true;
 
 		// expansion queue
@@ -347,7 +347,7 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 	 */
 	private void addBestChildren(BayesNet bayesNet, Instances instances, TreeMap<Double, Integer> expansionOrder,
 			boolean[] blackList, Integer attribute) {
-		for (int i = 0; i < getMaxNrOfChildren(); i++) {
+		for (var i = 0; i < getMaxNrOfChildren(); i++) {
 			Object[] arr = attributeBestChildrenList.get(attribute).keySet().toArray();
 
 			// if there are rules
@@ -378,7 +378,7 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 	 */
 	private void addBestParents(BayesNet bayesNet, Instances instances, TreeMap<Double, Integer> expansionOrder,
 			boolean[] blackList, Integer attribute) {
-		for (int i = 0; i < getMaxNrOfParents(); i++) {
+		for (var i = 0; i < getMaxNrOfParents(); i++) {
 			Object[] arr = attributeBestParentsList.get(attribute).keySet().toArray();
 
 			// if there are rules
