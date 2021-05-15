@@ -1,16 +1,14 @@
 /*
- *   This program is free software: you can redistribute it and/or modify
- *   it under the terms of the GNU General Public License as published by
- *   the Free Software Foundation, either version 3 of the License, or
- *   (at your option) any later version.
+ * This program is free software: you can redistribute it and/or modify it under the terms of the
+ * GNU General Public License as published by the Free Software Foundation, either version 3 of the
+ * License, or (at your option) any later version.
  *
- *   This program is distributed in the hope that it will be useful,
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *   GNU General Public License for more details.
+ * This program is distributed in the hope that it will be useful, but WITHOUT ANY WARRANTY; without
+ * even the implied warranty of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ * General Public License for more details.
  *
- *   You should have received a copy of the GNU General Public License
- *   along with this program.  If not, see <http://www.gnu.org/licenses/>.
+ * You should have received a copy of the GNU General Public License along with this program. If
+ * not, see <http://www.gnu.org/licenses/>.
  */
 package il.ac.openu.bestparents;
 
@@ -33,385 +31,385 @@ import weka.core.Instances;
  */
 public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 
-	private static final long serialVersionUID = 2467629575499347683L;
-	
-	private int maxNrOfChildren;
-	private double[][][][] attributeMatrix;
-	
-	ArrayList<TreeMap<Double, Integer>> attributeBestParentsList;
-	ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList;
-	ArrayList<TreeMap<Double, Integer>> attributeBestParentsAndChildrenList;
-	
-	/**
-	 * Performs path search.
-	 * 
-	 * @param bayesNet the network
-	 * @param instances the data to work with
-	 */
-	@Override
-	public void search(BayesNet bayesNet, Instances instances) {
-		// contingency table for each attribute X attribute matrix
-		attributeMatrix = new double[instances.numAttributes()][instances.numAttributes()][][];
+  private static final long serialVersionUID = 2467629575499347683L;
 
-		// allocate
-		allocate(instances);
+  private int maxNrOfChildren;
+  private double[][][][] attributeMatrix;
 
-		// count instantiations
-		count(instances);
+  ArrayList<TreeMap<Double, Integer>> attributeBestParentsList;
+  ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList;
+  ArrayList<TreeMap<Double, Integer>> attributeBestParentsAndChildrenList;
 
-		// for each attribute with index i: map<entropy, parent index>, keeping
-		// the map sorted
-		attributeBestParentsList = new ArrayList<>();
-		attributeBestChildrenList = new ArrayList<>();
-		attributeBestParentsAndChildrenList = new ArrayList<>();
+  /**
+   * Performs path search.
+   * 
+   * @param bayesNet the network
+   * @param instances the data to work with
+   */
+  @Override
+  public void search(BayesNet bayesNet, Instances instances) {
+    // contingency table for each attribute X attribute matrix
+    attributeMatrix = new double[instances.numAttributes()][instances.numAttributes()][][];
 
-		// allocate
-		for (var i = 0; i < instances.numAttributes(); i++) {
-			TreeMap<Double, Integer> tmpTreeMap = null;
-			tmpTreeMap = new TreeMap<>();
-			attributeBestParentsList.add(i, tmpTreeMap);
-			tmpTreeMap = new TreeMap<>();
-			attributeBestChildrenList.add(i, tmpTreeMap);
-			tmpTreeMap = new TreeMap<>();
-			attributeBestParentsAndChildrenList.add(i, tmpTreeMap);
-		}
+    // allocate
+    allocate(instances);
 
-		// map<entropy, rule(string)>
-		TreeMap<Double, String> entropyRuleMap = new TreeMap<>();
+    // count instantiations
+    count(instances);
 
-		// map<entropy, rule(attributeChildIndex <- attributeParentIndex)>
-		TreeMap<Double, Entry<Integer, Integer>> entropyChildFromParentMap = new TreeMap<>();
+    // for each attribute with index i: map<entropy, parent index>, keeping
+    // the map sorted
+    attributeBestParentsList = new ArrayList<>();
+    attributeBestChildrenList = new ArrayList<>();
+    attributeBestParentsAndChildrenList = new ArrayList<>();
 
-		// map<entropy, rule(attributeParentIndex -> attributeChildIndex)>
-		TreeMap<Double, Entry<Integer, Integer>> entropyParentToChildMap = new TreeMap<>();
+    // allocate
+    for (var i = 0; i < instances.numAttributes(); i++) {
+      TreeMap<Double, Integer> tmpTreeMap = null;
+      tmpTreeMap = new TreeMap<>();
+      attributeBestParentsList.add(i, tmpTreeMap);
+      tmpTreeMap = new TreeMap<>();
+      attributeBestChildrenList.add(i, tmpTreeMap);
+      tmpTreeMap = new TreeMap<>();
+      attributeBestParentsAndChildrenList.add(i, tmpTreeMap);
+    }
 
-		// calculate conditional entropy for contingency tables
-		for (var i = 0; i < instances.numAttributes(); i++) {
-			for (var j = 0; j < i; j++) {
-				double entropyConditionedOnRows = 
-						ContingencyTables.entropyConditionedOnRows(attributeMatrix[i][j]);
-				double entropyConditionedOnColumns = 
-						ContingencyTables.entropyConditionedOnColumns(attributeMatrix[i][j]);
+    // map<entropy, rule(string)>
+    TreeMap<Double, String> entropyRuleMap = new TreeMap<>();
 
-				double lowestEntropy = (entropyConditionedOnRows < entropyConditionedOnColumns) 
-						? entropyConditionedOnRows : entropyConditionedOnColumns;
+    // map<entropy, rule(attributeChildIndex <- attributeParentIndex)>
+    TreeMap<Double, Entry<Integer, Integer>> entropyChildFromParentMap = new TreeMap<>();
 
-				// save current rule
-				String arc = (entropyConditionedOnRows < entropyConditionedOnColumns) 
-						? instances.attribute(j).name() + " <- " + instances.attribute(i).name() 
-								: instances.attribute(i).name() + " <- " + instances.attribute(j).name();
-				entropyRuleMap.put(lowestEntropy, arc);
+    // map<entropy, rule(attributeParentIndex -> attributeChildIndex)>
+    TreeMap<Double, Entry<Integer, Integer>> entropyParentToChildMap = new TreeMap<>();
 
-				if (entropyConditionedOnRows < entropyConditionedOnColumns) {
-					attributeBestParentsList.get(j).put(lowestEntropy, i);
-					attributeBestChildrenList.get(i).put(lowestEntropy, j);
-					entropyChildFromParentMap.put(lowestEntropy, new AbstractMap.SimpleEntry<>(j, i));
-					entropyParentToChildMap.put(lowestEntropy, new AbstractMap.SimpleEntry<>(i, j));
-				} else {
-					attributeBestParentsList.get(i).put(lowestEntropy, j);
-					attributeBestChildrenList.get(j).put(lowestEntropy, i);
-					entropyChildFromParentMap.put(lowestEntropy, new AbstractMap.SimpleEntry<>(i, j));
-					entropyParentToChildMap.put(lowestEntropy, new AbstractMap.SimpleEntry<>(j, i));
-				}
-			}
-		}
+    // calculate conditional entropy for contingency tables
+    for (var i = 0; i < instances.numAttributes(); i++) {
+      for (var j = 0; j < i; j++) {
+        double entropyConditionedOnRows =
+            ContingencyTables.entropyConditionedOnRows(attributeMatrix[i][j]);
+        double entropyConditionedOnColumns =
+            ContingencyTables.entropyConditionedOnColumns(attributeMatrix[i][j]);
 
-		addBestParentsAndChildrenIterative(bayesNet, instances, instances.numAttributes() - 1);
-	}
+        double lowestEntropy =
+            (entropyConditionedOnRows < entropyConditionedOnColumns) ? entropyConditionedOnRows
+                : entropyConditionedOnColumns;
 
-	/**
-	 * Counts occurrences.
-	 * 
-	 * @param instances
-	 */
-	private void count(Instances instances) {
-		for (var n = 0; n < instances.numInstances(); n++) {
-			for (var i = 0; i < instances.numAttributes(); i++) {
-				for (var j = 0; j < i; j++) {
-					int iAttrIndex = (int) instances.instance(n).value(i);
-					int jAttrIndex = (int) instances.instance(n).value(j);
-					attributeMatrix[i][j][iAttrIndex][jAttrIndex]++;
-				}
-			}
-		}
-	}
+        // save current rule
+        String arc = (entropyConditionedOnRows < entropyConditionedOnColumns)
+            ? instances.attribute(j).name() + " <- " + instances.attribute(i).name()
+            : instances.attribute(i).name() + " <- " + instances.attribute(j).name();
+        entropyRuleMap.put(lowestEntropy, arc);
 
-	/**
-	 * Allocates memory.
-	 * 
-	 * @param instances
-	 */
-	private void allocate(Instances instances) {
-		for (var j = 0; j < instances.numAttributes(); j++) {
-			for (var k = 0; k < j; k++) {
-				attributeMatrix[j][k] = new double[instances.attribute(j).numValues()]
-						[instances.attribute(k).numValues()];
-			}
-		}
-	}
+        if (entropyConditionedOnRows < entropyConditionedOnColumns) {
+          attributeBestParentsList.get(j).put(lowestEntropy, i);
+          attributeBestChildrenList.get(i).put(lowestEntropy, j);
+          entropyChildFromParentMap.put(lowestEntropy, new AbstractMap.SimpleEntry<>(j, i));
+          entropyParentToChildMap.put(lowestEntropy, new AbstractMap.SimpleEntry<>(i, j));
+        } else {
+          attributeBestParentsList.get(i).put(lowestEntropy, j);
+          attributeBestChildrenList.get(j).put(lowestEntropy, i);
+          entropyChildFromParentMap.put(lowestEntropy, new AbstractMap.SimpleEntry<>(i, j));
+          entropyParentToChildMap.put(lowestEntropy, new AbstractMap.SimpleEntry<>(j, i));
+        }
+      }
+    }
 
-	/**
-	 * Sets the max number of parents.
-	 */
-	public void setMaxNrOfParents(int nMaxNrOfParents) {
-		m_nMaxNrOfParents = nMaxNrOfParents;
-	}
+    addBestParentsAndChildrenIterative(bayesNet, instances, instances.numAttributes() - 1);
+  }
 
-	/**
-	 * Gets the max number of parents.
-	 */
-	public int getMaxNrOfParents() {
-		return m_nMaxNrOfParents;
-	}
+  /**
+   * Counts occurrences.
+   * 
+   * @param instances
+   */
+  private void count(Instances instances) {
+    for (var n = 0; n < instances.numInstances(); n++) {
+      for (var i = 0; i < instances.numAttributes(); i++) {
+        for (var j = 0; j < i; j++) {
+          int iAttrIndex = (int) instances.instance(n).value(i);
+          int jAttrIndex = (int) instances.instance(n).value(j);
+          attributeMatrix[i][j][iAttrIndex][jAttrIndex]++;
+        }
+      }
+    }
+  }
 
-	/**
-	 * Sets the max number of children.
-	 */
-	public void setMaxNrOfChildren(int nMaxNrOfChildren) {
-		maxNrOfChildren = nMaxNrOfChildren;
-	}
+  /**
+   * Allocates memory.
+   * 
+   * @param instances
+   */
+  private void allocate(Instances instances) {
+    for (var j = 0; j < instances.numAttributes(); j++) {
+      for (var k = 0; k < j; k++) {
+        attributeMatrix[j][k] =
+            new double[instances.attribute(j).numValues()][instances.attribute(k).numValues()];
+      }
+    }
+  }
 
-	/**
-	 * Gets the max number of children.
-	 */
-	public int getMaxNrOfChildren() {
-		return maxNrOfChildren;
-	}
+  /**
+   * Sets the max number of parents.
+   */
+  public void setMaxNrOfParents(int nMaxNrOfParents) {
+    m_nMaxNrOfParents = nMaxNrOfParents;
+  }
 
-	/**
-	 * Adds nodes.
-	 * 
-	 * Recursive algorithm: start with class by adding best parent and child,
-	 * expand for child and parent the same algorithm till no more attributes
-	 * left.
-	 * 
-	 * @param bayesNet
-	 * @param instances
-	 * @param i attribute
-	 */
-	private void addBestParentsAndChildren(BayesNet bayesNet, Instances instances, 
-			int i, boolean[] blackList) {
-		TreeMap<Double, Integer> tmpBestChildrenMap = attributeBestChildrenList.get(i);
-		TreeMap<Double, Integer> tmpBestParentsMap = attributeBestParentsList.get(i);
+  /**
+   * Gets the max number of parents.
+   */
+  public int getMaxNrOfParents() {
+    return m_nMaxNrOfParents;
+  }
 
-		double bestChildKey = Double.MAX_VALUE;// +infinity
-		double bestParentKey = Double.MAX_VALUE;// +infinity
+  /**
+   * Sets the max number of children.
+   */
+  public void setMaxNrOfChildren(int nMaxNrOfChildren) {
+    maxNrOfChildren = nMaxNrOfChildren;
+  }
 
-		if (tmpBestChildrenMap.keySet().toArray().length != 0) {
-			bestChildKey = (double) tmpBestChildrenMap.keySet().toArray()[0];
-		}
+  /**
+   * Gets the max number of children.
+   */
+  public int getMaxNrOfChildren() {
+    return maxNrOfChildren;
+  }
 
-		if (tmpBestParentsMap.keySet().toArray().length != 0) {
-			bestParentKey = (double) tmpBestParentsMap.keySet().toArray()[0];
-		}
+  /**
+   * Adds nodes.
+   * 
+   * Recursive algorithm: start with class by adding best parent and child, expand for child and
+   * parent the same algorithm till no more attributes left.
+   * 
+   * @param bayesNet
+   * @param instances
+   * @param i attribute
+   */
+  private void addBestParentsAndChildren(BayesNet bayesNet, Instances instances, int i,
+      boolean[] blackList) {
+    TreeMap<Double, Integer> tmpBestChildrenMap = attributeBestChildrenList.get(i);
+    TreeMap<Double, Integer> tmpBestParentsMap = attributeBestParentsList.get(i);
 
-		Integer bestChild = tmpBestChildrenMap.get(bestChildKey);
-		Integer bestParent = tmpBestParentsMap.get(bestParentKey);
+    double bestChildKey = Double.MAX_VALUE;// +infinity
+    double bestParentKey = Double.MAX_VALUE;// +infinity
 
-		var expandToChild = false;
-		var expandToParent = false;
+    if (tmpBestChildrenMap.keySet().toArray().length != 0) {
+      bestChildKey = (double) tmpBestChildrenMap.keySet().toArray()[0];
+    }
 
-		// order matters, best child or parent could be stolen because of
-		// execution order!
-		var path = new PathData();
-		path.setBayesNet(bayesNet);
-		path.setInstances(instances);
-		path.setI(i);
-		path.setBlackList(blackList);
-		path.setTmpBestChildrenMap(tmpBestChildrenMap);
-		path.setTmpBestParentsMap(tmpBestParentsMap);
-		path.setBestChildKey(bestChildKey);
-		path.setBestParentKey(bestParentKey);
-		path.setBestChild(bestChild);
-		path.setBestParent(bestParent);
-		path.setExpandToChild(expandToChild);
-		path.setExpandToParent(expandToParent);
-		
-		if (bestChildKey < bestParentKey) {
-			expandChildPath(path);
-		} else {
-			expandParentPath(path);
-		}
-	}
+    if (tmpBestParentsMap.keySet().toArray().length != 0) {
+      bestParentKey = (double) tmpBestParentsMap.keySet().toArray()[0];
+    }
 
-	/**
-	 * Expands parent's path.
-	 * 
-	 * @param path
-	 */
-	private void expandParentPath(PathData path) {
-		boolean expandToParent = path.isExpandToParent();
-				boolean expandToChild = path.isExpandToChild();
-		if (path.getBestParent() != null && !path.getBlackList()[path.getBestParent()]) {
-			path.getBayesNet().getParentSet(path.getI())
-					.addParent(path.getBestParent(), path.getInstances());
-			path.getBlackList()[path.getBestParent()] = true;
-			expandToParent = true;
-			path.getTmpBestParentsMap().remove(path.getBestParentKey());
-		}
+    Integer bestChild = tmpBestChildrenMap.get(bestChildKey);
+    Integer bestParent = tmpBestParentsMap.get(bestParentKey);
 
-		if (path.getBestChild() != null && !path.getBlackList()[path.getBestChild()]) {
-			path.getBayesNet().getParentSet(path.getBestChild()).addParent(path.getI(), path.getInstances());
-			path.getBlackList()[path.getBestChild()] = true;
-			expandToChild = true;
-			path.getTmpBestChildrenMap().remove(path.getBestChildKey());
-		}
+    var expandToChild = false;
+    var expandToParent = false;
 
-		if (expandToParent) {
-			addBestParentsAndChildren(path.getBayesNet(), path.getInstances(), 
-					path.getBestParent(), path.getBlackList());
-		}
-		
-		if (expandToChild) {
-			addBestParentsAndChildren(path.getBayesNet(), path.getInstances(), 
-					path.getBestChild(), path.getBlackList());
-		}
-	}
+    // order matters, best child or parent could be stolen because of
+    // execution order!
+    var path = new PathData();
+    path.setBayesNet(bayesNet);
+    path.setInstances(instances);
+    path.setI(i);
+    path.setBlackList(blackList);
+    path.setTmpBestChildrenMap(tmpBestChildrenMap);
+    path.setTmpBestParentsMap(tmpBestParentsMap);
+    path.setBestChildKey(bestChildKey);
+    path.setBestParentKey(bestParentKey);
+    path.setBestChild(bestChild);
+    path.setBestParent(bestParent);
+    path.setExpandToChild(expandToChild);
+    path.setExpandToParent(expandToParent);
 
-	/**
-	 * Expands child's path.
-	 * 
-	 * @param path
-	 */
-	private void expandChildPath(PathData path) {
-		boolean expandToParent = path.isExpandToParent();
-				boolean expandToChild = path.isExpandToChild();
-		if (path.getBestChild() != null && !path.getBlackList()[path.getBestChild()]) {
-			path.getBayesNet().getParentSet(path.getBestChild()).addParent(path.getI(), path.getInstances());
-			path.getBlackList()[path.getBestChild()] = true;
-			expandToChild = true;
-			path.getTmpBestChildrenMap().remove(path.getBestChildKey());
-		}
+    if (bestChildKey < bestParentKey) {
+      expandChildPath(path);
+    } else {
+      expandParentPath(path);
+    }
+  }
 
-		if (path.getBestParent() != null && !path.getBlackList()[path.getBestParent()]) {
-			path.getBayesNet().getParentSet(path.getI())
-					.addParent(path.getBestParent(), path.getInstances());
-			path.getBlackList()[path.getBestParent()] = true;
-			expandToParent = true;
-			path.getTmpBestParentsMap().remove(path.getBestParentKey());
-		}
+  /**
+   * Expands parent's path.
+   * 
+   * @param path
+   */
+  private void expandParentPath(PathData path) {
+    boolean expandToParent = path.isExpandToParent();
+    boolean expandToChild = path.isExpandToChild();
+    if (path.getBestParent() != null && !path.getBlackList()[path.getBestParent()]) {
+      path.getBayesNet().getParentSet(path.getI()).addParent(path.getBestParent(),
+          path.getInstances());
+      path.getBlackList()[path.getBestParent()] = true;
+      expandToParent = true;
+      path.getTmpBestParentsMap().remove(path.getBestParentKey());
+    }
 
-		if (expandToChild) {
-			addBestParentsAndChildren(path.getBayesNet(), path.getInstances(), 
-					path.getBestChild(), path.getBlackList());
-		}
-		
-		if (expandToParent) {
-			addBestParentsAndChildren(path.getBayesNet(), path.getInstances(), 
-					path.getBestParent(), path.getBlackList());
-		}
-	}
+    if (path.getBestChild() != null && !path.getBlackList()[path.getBestChild()]) {
+      path.getBayesNet().getParentSet(path.getBestChild()).addParent(path.getI(),
+          path.getInstances());
+      path.getBlackList()[path.getBestChild()] = true;
+      expandToChild = true;
+      path.getTmpBestChildrenMap().remove(path.getBestChildKey());
+    }
 
-	/**
-	 * Adds nodes.
-	 * 
-	 * Iterative algorithm: start with class by adding best parent and child,
-	 * expand for child and parent the same algorithm till no more attributes
-	 * left. Use queue instead of recursive expansion.
-	 * 
-	 * @param bayesNet
-	 * @param instances
-	 * @param startingAttribute
-	 */
-	public void addBestParentsAndChildrenIterative(BayesNet bayesNet, 
-			Instances instances, int startingAttribute) {
-		// keeping the expansion order is important, expand to the lowest
-		// conditional entropies first
-		TreeMap<Double, Integer> expansionOrder = new TreeMap<>();
+    if (expandToParent) {
+      addBestParentsAndChildren(path.getBayesNet(), path.getInstances(), path.getBestParent(),
+          path.getBlackList());
+    }
 
-		// blackList: mark Class as used
-		var blackList = new boolean[instances.numAttributes()];
-		blackList[startingAttribute] = true;
+    if (expandToChild) {
+      addBestParentsAndChildren(path.getBayesNet(), path.getInstances(), path.getBestChild(),
+          path.getBlackList());
+    }
+  }
 
-		// expansion queue
-		Queue<Integer> queue = new LinkedList<>();
+  /**
+   * Expands child's path.
+   * 
+   * @param path
+   */
+  private void expandChildPath(PathData path) {
+    boolean expandToParent = path.isExpandToParent();
+    boolean expandToChild = path.isExpandToChild();
+    if (path.getBestChild() != null && !path.getBlackList()[path.getBestChild()]) {
+      path.getBayesNet().getParentSet(path.getBestChild()).addParent(path.getI(),
+          path.getInstances());
+      path.getBlackList()[path.getBestChild()] = true;
+      expandToChild = true;
+      path.getTmpBestChildrenMap().remove(path.getBestChildKey());
+    }
 
-		// start with class
-		queue.add(startingAttribute);
+    if (path.getBestParent() != null && !path.getBlackList()[path.getBestParent()]) {
+      path.getBayesNet().getParentSet(path.getI()).addParent(path.getBestParent(),
+          path.getInstances());
+      path.getBlackList()[path.getBestParent()] = true;
+      expandToParent = true;
+      path.getTmpBestParentsMap().remove(path.getBestParentKey());
+    }
 
-		// while there are attributes to expand
-		while (!queue.isEmpty()) {
-			// current attribute
-			Integer attribute = queue.remove();
-			blackList[attribute] = true;
+    if (expandToChild) {
+      addBestParentsAndChildren(path.getBayesNet(), path.getInstances(), path.getBestChild(),
+          path.getBlackList());
+    }
 
-			// add best parents
-			addBestParents(bayesNet, instances, expansionOrder, blackList, attribute);
+    if (expandToParent) {
+      addBestParentsAndChildren(path.getBayesNet(), path.getInstances(), path.getBestParent(),
+          path.getBlackList());
+    }
+  }
 
-			// add best children
-			addBestChildren(bayesNet, instances, expansionOrder, blackList, attribute);
+  /**
+   * Adds nodes.
+   * 
+   * Iterative algorithm: start with class by adding best parent and child, expand for child and
+   * parent the same algorithm till no more attributes left. Use queue instead of recursive
+   * expansion.
+   * 
+   * @param bayesNet
+   * @param instances
+   * @param startingAttribute
+   */
+  public void addBestParentsAndChildrenIterative(BayesNet bayesNet, Instances instances,
+      int startingAttribute) {
+    // keeping the expansion order is important, expand to the lowest
+    // conditional entropies first
+    TreeMap<Double, Integer> expansionOrder = new TreeMap<>();
 
-			//if queue is empty, proceed with expansion by order 
-			if (queue.isEmpty()) {
-				queue = new LinkedList<>();
-				queue.addAll(expansionOrder.values());
-				expansionOrder = new TreeMap<>();
-			}
-		}
-	}
+    // blackList: mark Class as used
+    var blackList = new boolean[instances.numAttributes()];
+    blackList[startingAttribute] = true;
 
-	/**
-	 * Adds best children.
-	 * 
-	 * @param bayesNet
-	 * @param instances
-	 * @param expansionOrder
-	 * @param blackList
-	 * @param attribute
-	 */
-	private void addBestChildren(BayesNet bayesNet, Instances instances, 
-			TreeMap<Double, Integer> expansionOrder,
-			boolean[] blackList, Integer attribute) {
-		for (var i = 0; i < getMaxNrOfChildren(); i++) {
-			Object[] arr = attributeBestChildrenList.get(attribute).keySet().toArray();
+    // expansion queue
+    Queue<Integer> queue = new LinkedList<>();
 
-			// if there are rules
-			if (arr.length == 0) {
-				break;
-			}
+    // start with class
+    queue.add(startingAttribute);
 
-			Double key = (Double) arr[i];
-			Integer val = attributeBestChildrenList.get(attribute).get(key);
+    // while there are attributes to expand
+    while (!queue.isEmpty()) {
+      // current attribute
+      Integer attribute = queue.remove();
+      blackList[attribute] = true;
 
-			if (i < arr.length && !blackList[val] 
-					/*&& bayesNet.getParentSet(val).getNrOfParents() < getMaxNrOfParents()*/) {
-				bayesNet.getParentSet(val).addParent(i, instances);
-				expansionOrder.put(key, val);
-				blackList[val] = true;
-			}
-		}
-	}
+      // add best parents
+      addBestParents(bayesNet, instances, expansionOrder, blackList, attribute);
 
-	/**
-	 * Adds best parents.
-	 * 
-	 * @param bayesNet
-	 * @param instances
-	 * @param expansionOrder
-	 * @param blackList
-	 * @param attribute
-	 */
-	private void addBestParents(BayesNet bayesNet, Instances instances, 
-			TreeMap<Double, Integer> expansionOrder,
-			boolean[] blackList, Integer attribute) {
-		for (var i = 0; i < getMaxNrOfParents(); i++) {
-			Object[] arr = attributeBestParentsList.get(attribute).keySet().toArray();
+      // add best children
+      addBestChildren(bayesNet, instances, expansionOrder, blackList, attribute);
 
-			// if there are rules
-			if (arr.length == 0) {
-				break;
-			}
+      // if queue is empty, proceed with expansion by order
+      if (queue.isEmpty()) {
+        queue = new LinkedList<>();
+        queue.addAll(expansionOrder.values());
+        expansionOrder = new TreeMap<>();
+      }
+    }
+  }
 
-			Double key = (Double) arr[i];
-			Integer val = attributeBestParentsList.get(attribute).get(key);
+  /**
+   * Adds best children.
+   * 
+   * @param bayesNet
+   * @param instances
+   * @param expansionOrder
+   * @param blackList
+   * @param attribute
+   */
+  private void addBestChildren(BayesNet bayesNet, Instances instances,
+      TreeMap<Double, Integer> expansionOrder, boolean[] blackList, Integer attribute) {
+    for (var i = 0; i < getMaxNrOfChildren(); i++) {
+      Object[] arr = attributeBestChildrenList.get(attribute).keySet().toArray();
 
-			if (i < arr.length && !blackList[val] 
-					/*&& bayesNet.getParentSet(attribute).getNrOfParents() < getMaxNrOfParents()*/) {
-				bayesNet.getParentSet(attribute).addParent(val, instances);
-				expansionOrder.put(key, val);
-				blackList[val] = true;
-			}
-		}
-	}
-	
+      // if there are rules
+      if (arr.length == 0) {
+        break;
+      }
+
+      Double key = (Double) arr[i];
+      Integer val = attributeBestChildrenList.get(attribute).get(key);
+
+      if (i < arr.length && !blackList[val]
+      /* && bayesNet.getParentSet(val).getNrOfParents() < getMaxNrOfParents() */) {
+        bayesNet.getParentSet(val).addParent(i, instances);
+        expansionOrder.put(key, val);
+        blackList[val] = true;
+      }
+    }
+  }
+
+  /**
+   * Adds best parents.
+   * 
+   * @param bayesNet
+   * @param instances
+   * @param expansionOrder
+   * @param blackList
+   * @param attribute
+   */
+  private void addBestParents(BayesNet bayesNet, Instances instances,
+      TreeMap<Double, Integer> expansionOrder, boolean[] blackList, Integer attribute) {
+    for (var i = 0; i < getMaxNrOfParents(); i++) {
+      Object[] arr = attributeBestParentsList.get(attribute).keySet().toArray();
+
+      // if there are rules
+      if (arr.length == 0) {
+        break;
+      }
+
+      Double key = (Double) arr[i];
+      Integer val = attributeBestParentsList.get(attribute).get(key);
+
+      if (i < arr.length && !blackList[val]
+      /* && bayesNet.getParentSet(attribute).getNrOfParents() < getMaxNrOfParents() */) {
+        bayesNet.getParentSet(attribute).addParent(val, instances);
+        expansionOrder.put(key, val);
+        blackList[val] = true;
+      }
+    }
+  }
+
 }
