@@ -70,7 +70,8 @@ public class BestChildrenSearch extends SearchAlgorithm {
 		TreeMap<Double, Entry<Integer,Integer>> entropyParentToChildMap = new TreeMap<>();
 		
 		// calculate conditional entropy for contingency tables
-		calculateContingencyTables(instances, attributeBestChildrenList, entropyRuleMap, entropyParentToChildMap);
+		calculateContingencyTables(instances, attributeBestChildrenList, 
+				entropyRuleMap, entropyParentToChildMap);
 
 		//build network
 		assembleNetwork(bayesNet, instances, attributeBestChildrenList);
@@ -83,7 +84,8 @@ public class BestChildrenSearch extends SearchAlgorithm {
 	 * @param instances
 	 * @param attributeBestChildrenList
 	 */
-	private void assembleNetwork(BayesNet bayesNet, Instances instances, ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList) {
+	private void assembleNetwork(BayesNet bayesNet, Instances instances, 
+			ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList) {
 		for (var i = 0; i < instances.numAttributes(); i++) {
 			TreeMap<Double, Integer> tmpTreeMap = attributeBestChildrenList.get(i);
 			var numOfAddedRules = 0;
@@ -113,12 +115,15 @@ public class BestChildrenSearch extends SearchAlgorithm {
 	 * @param entropyParentToChildMap
 	 */
 	private void calculateContingencyTables(Instances instances,
-			ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList, TreeMap<Double, String> entropyRuleMap,
+			ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList, 
+			TreeMap<Double, String> entropyRuleMap,
 			TreeMap<Double, Entry<Integer, Integer>> entropyParentToChildMap) {
 		for (var i = 0; i < instances.numAttributes(); i++) {
 			for (var j = 0; j < i; j++) {
-				double entropyConditionedOnRows = ContingencyTables.entropyConditionedOnRows(attributeMatrix[i][j]);
-				double entropyConditionedOnColumns = ContingencyTables.entropyConditionedOnColumns(attributeMatrix[i][j]);
+				double entropyConditionedOnRows = 
+						ContingencyTables.entropyConditionedOnRows(attributeMatrix[i][j]);
+				double entropyConditionedOnColumns = 
+						ContingencyTables.entropyConditionedOnColumns(attributeMatrix[i][j]);
 
 				double lowestEntropy = (entropyConditionedOnRows < entropyConditionedOnColumns) ? 
 						entropyConditionedOnRows : 

@@ -83,7 +83,8 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm{
 		TreeMap<Double, Entry<Integer,Integer>> entropyParentToChildMap = new TreeMap<>();
 		
 		// calculate conditional entropy for contingency tables
-		calculateContingencyTables(instances, entropyRuleMap, entropyChildFromParentMap, entropyParentToChildMap);
+		calculateContingencyTables(instances, entropyRuleMap, 
+				entropyChildFromParentMap, entropyParentToChildMap);
 
 		//Greedy algorithm: for each attribute take best child or parent, having the lower entropy
 		//if true not usable, if false (default) usable
@@ -108,7 +109,8 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm{
 			
 			//if child is better than parent (entropies comparison)
 			if(bestChildKey < bestParentKey){
-				int numOfParentsForCurrentChild = bayesNet.getParentSet(tmpBestChildrenMap.get(bestChildKey)).getNrOfParents();
+				int numOfParentsForCurrentChild = bayesNet.getParentSet(
+						tmpBestChildrenMap.get(bestChildKey)).getNrOfParents();
 				
 				if (numOfAddedRules < getMaxNrOfChildren() &&
 						numOfParentsForCurrentChild < getMaxNrOfParents() &&
@@ -122,13 +124,14 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm{
 					bayesNet.getParentSet(tmpBestChildrenMap.get(bestChildKey)).addParent(i, instances);
 					childrenBlackList[tmpBestChildrenMap.get(bestChildKey)] = true;
 				}
-			} else if (numOfAddedRules < getMaxNrOfParents() && 
-					numOfAddedRules < tmpBestParentsMap.size() &&
-					BnUtils.countNumOfChildren(bayesNet, instances, tmpBestParentsMap.get(bestParentKey)) < getMaxNrOfChildren() &&
-					!bayesNet.getParentSet(i).contains(tmpBestParentsMap.get(bestParentKey)) &&
-					!parentsBlackList[tmpBestParentsMap.get(bestParentKey)] &&
-					tmpBestChildrenMap.get(bestChildKey) != null &&
-					!childrenBlackList[tmpBestChildrenMap.get(bestChildKey)]
+			} else if (numOfAddedRules < getMaxNrOfParents() 
+					&& numOfAddedRules < tmpBestParentsMap.size() 
+					&& BnUtils.countNumOfChildren(bayesNet, instances, 
+							tmpBestParentsMap.get(bestParentKey)) < getMaxNrOfChildren() 
+					&& !bayesNet.getParentSet(i).contains(tmpBestParentsMap.get(bestParentKey)) 
+					&& !parentsBlackList[tmpBestParentsMap.get(bestParentKey)] 
+					&& tmpBestChildrenMap.get(bestChildKey) != null 
+					&& !childrenBlackList[tmpBestChildrenMap.get(bestChildKey)]
 				){
 				bayesNet.getParentSet(i).addParent(tmpBestParentsMap.get(bestParentKey), instances);
 				parentsBlackList[tmpBestParentsMap.get(bestParentKey)] = true;
@@ -144,13 +147,16 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm{
 	 * @param entropyChildFromParentMap
 	 * @param entropyParentToChildMap
 	 */
-	private void calculateContingencyTables(Instances instances, TreeMap<Double, String> entropyRuleMap,
+	private void calculateContingencyTables(Instances instances, 
+			TreeMap<Double, String> entropyRuleMap,
 			TreeMap<Double, Entry<Integer, Integer>> entropyChildFromParentMap,
 			TreeMap<Double, Entry<Integer, Integer>> entropyParentToChildMap) {
 		for (var i = 0; i < instances.numAttributes(); i++) {
 			for (var j = 0; j < i; j++) {
-				double entropyConditionedOnRows = ContingencyTables.entropyConditionedOnRows(attributeMatrix[i][j]);
-				double entropyConditionedOnColumns = ContingencyTables.entropyConditionedOnColumns(attributeMatrix[i][j]);
+				double entropyConditionedOnRows = 
+						ContingencyTables.entropyConditionedOnRows(attributeMatrix[i][j]);
+				double entropyConditionedOnColumns = 
+						ContingencyTables.entropyConditionedOnColumns(attributeMatrix[i][j]);
 
 				double lowestEntropy = (entropyConditionedOnRows < entropyConditionedOnColumns) ? 
 						entropyConditionedOnRows : 
@@ -202,7 +208,8 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm{
 	private void allocate(Instances instances) {
 		for (var j = 0; j < instances.numAttributes(); j++) {
 			for (var k = 0; k < j; k++) {
-				attributeMatrix[j][k] = new double[instances.attribute(j).numValues()][instances.attribute(k).numValues()];
+				attributeMatrix[j][k] = new double[instances.attribute(j).numValues()]
+						[instances.attribute(k).numValues()];
 			}
 		}
 	}

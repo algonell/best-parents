@@ -33,7 +33,8 @@ public abstract class BnUtils {
 			sb.append(attribute.value(i) + " " + distributions[i] + "%, ");
 		}
 
-		sb.append(attribute.value(distributions.length - 1) + " " + distributions[distributions.length - 1] + "%");
+		sb.append(attribute.value(distributions.length - 1) + " " 
+				+ distributions[distributions.length - 1] + "%");
 
 		return sb.toString();
 	}

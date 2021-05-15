@@ -84,7 +84,8 @@ public class BestParentsAndChildrenFullListSearch extends SearchAlgorithm {
 		TreeMap<Double, Entry<Integer,Integer>> entropyBestRuleMap = new TreeMap<>();
 		
 		// calculate conditional entropy for contingency tables
-		calculateContingencyTables(instances, attributeBestParentsList, attributeBestChildrenList, entropyRuleMap,
+		calculateContingencyTables(instances, attributeBestParentsList, 
+				attributeBestChildrenList, entropyRuleMap,
 				entropyChildFromParentMap, entropyParentToChildMap, entropyBestRuleMap);
 
 		//Greedy algorithm: add parents from the full list of rules (sorted)
@@ -116,14 +117,17 @@ public class BestParentsAndChildrenFullListSearch extends SearchAlgorithm {
 	 */
 	private void calculateContingencyTables(Instances instances,
 			ArrayList<TreeMap<Double, Integer>> attributeBestParentsList,
-			ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList, TreeMap<Double, String> entropyRuleMap,
+			ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList, 
+			TreeMap<Double, String> entropyRuleMap,
 			TreeMap<Double, Entry<Integer, Integer>> entropyChildFromParentMap,
 			TreeMap<Double, Entry<Integer, Integer>> entropyParentToChildMap,
 			TreeMap<Double, Entry<Integer, Integer>> entropyBestRuleMap) {
 		for (var i = 0; i < instances.numAttributes(); i++) {
 			for (var j = 0; j < i; j++) {
-				double entropyConditionedOnRows = ContingencyTables.entropyConditionedOnRows(attributeMatrix[i][j]);
-				double entropyConditionedOnColumns = ContingencyTables.entropyConditionedOnColumns(attributeMatrix[i][j]);
+				double entropyConditionedOnRows = 
+						ContingencyTables.entropyConditionedOnRows(attributeMatrix[i][j]);
+				double entropyConditionedOnColumns = 
+						ContingencyTables.entropyConditionedOnColumns(attributeMatrix[i][j]);
 
 				double lowestEntropy = (entropyConditionedOnRows < entropyConditionedOnColumns) ? 
 						entropyConditionedOnRows : 
@@ -179,7 +183,8 @@ public class BestParentsAndChildrenFullListSearch extends SearchAlgorithm {
 	private void allocate(Instances instances) {
 		for (var j = 0; j < instances.numAttributes(); j++) {
 			for (var k = 0; k < j; k++) {
-				attributeMatrix[j][k] = new double[instances.attribute(j).numValues()][instances.attribute(k).numValues()];
+				attributeMatrix[j][k] = new double[instances.attribute(j).numValues()]
+						[instances.attribute(k).numValues()];
 			}
 		}
 	}

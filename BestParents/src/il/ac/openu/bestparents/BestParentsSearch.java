@@ -57,7 +57,8 @@ public class BestParentsSearch extends SearchAlgorithm {
 		addBestRules(bayesNet, instances, attributeBestParentsList);
 	}
 
-	private void addBestRules(BayesNet bayesNet, Instances instances, ArrayList<TreeMap<Double, Integer>> attributeBestParentsList) {
+	private void addBestRules(BayesNet bayesNet, Instances instances, 
+			ArrayList<TreeMap<Double, Integer>> attributeBestParentsList) {
 		for (var i = 0; i < instances.numAttributes(); i++) {
 			TreeMap<Double, Integer> tmpTreeMap = attributeBestParentsList.get(i);
 			var numOfAddedRules = 0;
@@ -84,7 +85,8 @@ public class BestParentsSearch extends SearchAlgorithm {
 	 * @param attributeMatrix
 	 * @param attributeBestParentsList
 	 */
-	private void findBestParents(Instances instances, double[][][][] attributeMatrix, ArrayList<TreeMap<Double, Integer>> attributeBestParentsList) {
+	private void findBestParents(Instances instances, double[][][][] attributeMatrix, 
+			ArrayList<TreeMap<Double, Integer>> attributeBestParentsList) {
 		//map<entropy, rule(string)>
 		TreeMap<Double, String> entropyRuleMap = new TreeMap<>();
 
@@ -94,8 +96,10 @@ public class BestParentsSearch extends SearchAlgorithm {
 		// calculate conditional entropy for contingency tables
 		for (var i = 0; i < instances.numAttributes(); i++) {
 			for (var j = 0; j < i; j++) {
-				double entropyConditionedOnRows = ContingencyTables.entropyConditionedOnRows(attributeMatrix[i][j]);
-				double entropyConditionedOnColumns = ContingencyTables.entropyConditionedOnColumns(attributeMatrix[i][j]);
+				double entropyConditionedOnRows = 
+						ContingencyTables.entropyConditionedOnRows(attributeMatrix[i][j]);
+				double entropyConditionedOnColumns = 
+						ContingencyTables.entropyConditionedOnColumns(attributeMatrix[i][j]);
 
 				double lowestEntropy = (entropyConditionedOnRows < entropyConditionedOnColumns) ? 
 						entropyConditionedOnRows : 
@@ -165,7 +169,8 @@ public class BestParentsSearch extends SearchAlgorithm {
 		// allocate
 		for (var j = 0; j < instances.numAttributes(); j++) {
 			for (var k = 0; k < j; k++) {
-				attributeMatrix[j][k] = new double[instances.attribute(j).numValues()][instances.attribute(k).numValues()];
+				attributeMatrix[j][k] = new double[instances.attribute(j).numValues()]
+						[instances.attribute(k).numValues()];
 			}
 		}
 		

@@ -40,9 +40,11 @@ public class PathData {
 	public boolean[] getBlackList() { return blackList; }
 	public void setBlackList(boolean[] blackList) { this.blackList = blackList; }
 	public SortedMap<Double, Integer> getTmpBestChildrenMap() { return tmpBestChildrenMap; }
-	public void setTmpBestChildrenMap(SortedMap<Double, Integer> tmpBestChildrenMap) { this.tmpBestChildrenMap = tmpBestChildrenMap; }
+	public void setTmpBestChildrenMap(SortedMap<Double, Integer> tmpBestChildrenMap) { 
+		this.tmpBestChildrenMap = tmpBestChildrenMap; }
 	public SortedMap<Double, Integer> getTmpBestParentsMap() { return tmpBestParentsMap; }
-	public void setTmpBestParentsMap(SortedMap<Double, Integer> tmpBestParentsMap) { this.tmpBestParentsMap = tmpBestParentsMap; }
+	public void setTmpBestParentsMap(SortedMap<Double, Integer> tmpBestParentsMap) { 
+		this.tmpBestParentsMap = tmpBestParentsMap; }
 	public double getBestChildKey() { return bestChildKey; }
 	public void setBestChildKey(double bestChildKey) { this.bestChildKey = bestChildKey; }
 	public double getBestParentKey() { return bestParentKey; }
