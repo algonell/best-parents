@@ -17,7 +17,6 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.TreeMap;
-
 import weka.classifiers.bayes.BayesNet;
 import weka.classifiers.bayes.net.search.SearchAlgorithm;
 import weka.core.ContingencyTables;
@@ -25,7 +24,7 @@ import weka.core.Instances;
 
 /**
  * Best children search.
- * 
+ *
  * @author Andrew Kreimer
  */
 public class BestChildrenSearch extends SearchAlgorithm {
@@ -37,7 +36,7 @@ public class BestChildrenSearch extends SearchAlgorithm {
 
   /**
    * Performs path search.
-   * 
+   *
    * @param bayesNet the network
    * @param instances the data to work with
    */
@@ -68,8 +67,8 @@ public class BestChildrenSearch extends SearchAlgorithm {
     TreeMap<Double, Entry<Integer, Integer>> entropyParentToChildMap = new TreeMap<>();
 
     // calculate conditional entropy for contingency tables
-    calculateContingencyTables(instances, attributeBestChildrenList, entropyRuleMap,
-        entropyParentToChildMap);
+    calculateContingencyTables(
+        instances, attributeBestChildrenList, entropyRuleMap, entropyParentToChildMap);
 
     // build network
     assembleNetwork(bayesNet, instances, attributeBestChildrenList);
@@ -77,12 +76,14 @@ public class BestChildrenSearch extends SearchAlgorithm {
 
   /**
    * Assembles network.
-   * 
+   *
    * @param bayesNet
    * @param instances
    * @param attributeBestChildrenList
    */
-  private void assembleNetwork(BayesNet bayesNet, Instances instances,
+  private void assembleNetwork(
+      BayesNet bayesNet,
+      Instances instances,
       ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList) {
     for (var i = 0; i < instances.numAttributes(); i++) {
       TreeMap<Double, Integer> tmpTreeMap = attributeBestChildrenList.get(i);
@@ -106,13 +107,14 @@ public class BestChildrenSearch extends SearchAlgorithm {
 
   /**
    * Calculates conditional entropies.
-   * 
+   *
    * @param instances
    * @param attributeBestChildrenList
    * @param entropyRuleMap
    * @param entropyParentToChildMap
    */
-  private void calculateContingencyTables(Instances instances,
+  private void calculateContingencyTables(
+      Instances instances,
       ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList,
       TreeMap<Double, String> entropyRuleMap,
       TreeMap<Double, Entry<Integer, Integer>> entropyParentToChildMap) {
@@ -124,13 +126,15 @@ public class BestChildrenSearch extends SearchAlgorithm {
             ContingencyTables.entropyConditionedOnColumns(attributeMatrix[i][j]);
 
         double lowestEntropy =
-            (entropyConditionedOnRows < entropyConditionedOnColumns) ? entropyConditionedOnRows
+            (entropyConditionedOnRows < entropyConditionedOnColumns)
+                ? entropyConditionedOnRows
                 : entropyConditionedOnColumns;
 
         // save current rule
-        String arc = (entropyConditionedOnRows < entropyConditionedOnColumns)
-            ? instances.attribute(i).name() + " -> " + instances.attribute(j).name()
-            : instances.attribute(j).name() + " -> " + instances.attribute(i).name();
+        String arc =
+            (entropyConditionedOnRows < entropyConditionedOnColumns)
+                ? instances.attribute(i).name() + " -> " + instances.attribute(j).name()
+                : instances.attribute(j).name() + " -> " + instances.attribute(i).name();
         entropyRuleMap.put(lowestEntropy, arc);
 
         if (entropyConditionedOnRows < entropyConditionedOnColumns) {
@@ -146,7 +150,7 @@ public class BestChildrenSearch extends SearchAlgorithm {
 
   /**
    * Counts occurrences.
-   * 
+   *
    * @param instances
    */
   private void count(Instances instances) {
@@ -163,7 +167,7 @@ public class BestChildrenSearch extends SearchAlgorithm {
 
   /**
    * Allocates memory.
-   * 
+   *
    * @param instances
    */
   private void allocate(Instances instances) {
@@ -175,18 +179,13 @@ public class BestChildrenSearch extends SearchAlgorithm {
     }
   }
 
-  /**
-   * Sets the max number of children.
-   */
+  /** Sets the max number of children. */
   public void setMaxNrOfChildren(int nMaxNrOfChildren) {
     maxNrOfChildren = nMaxNrOfChildren;
   }
 
-  /**
-   * Gets the max number of children.
-   */
+  /** Gets the max number of children. */
   public int getMaxNrOfChildren() {
     return maxNrOfChildren;
   }
-
 }

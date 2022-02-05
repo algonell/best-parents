@@ -4,15 +4,13 @@
 package il.ac.openu.bestparents;
 
 import java.util.SortedMap;
-
 import weka.classifiers.bayes.BayesNet;
 import weka.core.Instances;
 
 /**
  * Auto generated wrapper for path expansion.
- * 
- * @author Andrew Kreimer
  *
+ * @author Andrew Kreimer
  */
 public class PathData {
 
@@ -124,5 +122,4 @@ public class PathData {
   public void setExpandToParent(boolean expandToParent) {
     this.expandToParent = expandToParent;
   }
-
 }

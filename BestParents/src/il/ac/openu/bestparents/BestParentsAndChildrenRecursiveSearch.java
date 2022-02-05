@@ -18,7 +18,6 @@ import java.util.LinkedList;
 import java.util.Map.Entry;
 import java.util.Queue;
 import java.util.TreeMap;
-
 import weka.classifiers.bayes.BayesNet;
 import weka.classifiers.bayes.net.search.SearchAlgorithm;
 import weka.core.ContingencyTables;
@@ -26,7 +25,7 @@ import weka.core.Instances;
 
 /**
  * Bes parents and children recursive search.
- * 
+ *
  * @author Andrew Kreimer
  */
 public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
@@ -42,7 +41,7 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 
   /**
    * Performs path search.
-   * 
+   *
    * @param bayesNet the network
    * @param instances the data to work with
    */
@@ -92,13 +91,15 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
             ContingencyTables.entropyConditionedOnColumns(attributeMatrix[i][j]);
 
         double lowestEntropy =
-            (entropyConditionedOnRows < entropyConditionedOnColumns) ? entropyConditionedOnRows
+            (entropyConditionedOnRows < entropyConditionedOnColumns)
+                ? entropyConditionedOnRows
                 : entropyConditionedOnColumns;
 
         // save current rule
-        String arc = (entropyConditionedOnRows < entropyConditionedOnColumns)
-            ? instances.attribute(j).name() + " <- " + instances.attribute(i).name()
-            : instances.attribute(i).name() + " <- " + instances.attribute(j).name();
+        String arc =
+            (entropyConditionedOnRows < entropyConditionedOnColumns)
+                ? instances.attribute(j).name() + " <- " + instances.attribute(i).name()
+                : instances.attribute(i).name() + " <- " + instances.attribute(j).name();
         entropyRuleMap.put(lowestEntropy, arc);
 
         if (entropyConditionedOnRows < entropyConditionedOnColumns) {
@@ -120,7 +121,7 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 
   /**
    * Counts occurrences.
-   * 
+   *
    * @param instances
    */
   private void count(Instances instances) {
@@ -137,7 +138,7 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 
   /**
    * Allocates memory.
-   * 
+   *
    * @param instances
    */
   private void allocate(Instances instances) {
@@ -149,51 +150,43 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
     }
   }
 
-  /**
-   * Sets the max number of parents.
-   */
+  /** Sets the max number of parents. */
   public void setMaxNrOfParents(int nMaxNrOfParents) {
     m_nMaxNrOfParents = nMaxNrOfParents;
   }
 
-  /**
-   * Gets the max number of parents.
-   */
+  /** Gets the max number of parents. */
   public int getMaxNrOfParents() {
     return m_nMaxNrOfParents;
   }
 
-  /**
-   * Sets the max number of children.
-   */
+  /** Sets the max number of children. */
   public void setMaxNrOfChildren(int nMaxNrOfChildren) {
     maxNrOfChildren = nMaxNrOfChildren;
   }
 
-  /**
-   * Gets the max number of children.
-   */
+  /** Gets the max number of children. */
   public int getMaxNrOfChildren() {
     return maxNrOfChildren;
   }
 
   /**
    * Adds nodes.
-   * 
-   * Recursive algorithm: start with class by adding best parent and child, expand for child and
+   *
+   * <p>Recursive algorithm: start with class by adding best parent and child, expand for child and
    * parent the same algorithm till no more attributes left.
-   * 
+   *
    * @param bayesNet
    * @param instances
    * @param i attribute
    */
-  private void addBestParentsAndChildren(BayesNet bayesNet, Instances instances, int i,
-      boolean[] blackList) {
+  private void addBestParentsAndChildren(
+      BayesNet bayesNet, Instances instances, int i, boolean[] blackList) {
     TreeMap<Double, Integer> tmpBestChildrenMap = attributeBestChildrenList.get(i);
     TreeMap<Double, Integer> tmpBestParentsMap = attributeBestParentsList.get(i);
 
-    double bestChildKey = Double.MAX_VALUE;// +infinity
-    double bestParentKey = Double.MAX_VALUE;// +infinity
+    double bestChildKey = Double.MAX_VALUE; // +infinity
+    double bestParentKey = Double.MAX_VALUE; // +infinity
 
     if (tmpBestChildrenMap.keySet().toArray().length != 0) {
       bestChildKey = (double) tmpBestChildrenMap.keySet().toArray()[0];
@@ -234,87 +227,91 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 
   /**
    * Expands parent's path.
-   * 
+   *
    * @param path
    */
   private void expandParentPath(PathData path) {
     boolean expandToParent = path.isExpandToParent();
     boolean expandToChild = path.isExpandToChild();
     if (path.getBestParent() != null && !path.getBlackList()[path.getBestParent()]) {
-      path.getBayesNet().getParentSet(path.getI()).addParent(path.getBestParent(),
-          path.getInstances());
+      path.getBayesNet()
+          .getParentSet(path.getI())
+          .addParent(path.getBestParent(), path.getInstances());
       path.getBlackList()[path.getBestParent()] = true;
       expandToParent = true;
       path.getTmpBestParentsMap().remove(path.getBestParentKey());
     }
 
     if (path.getBestChild() != null && !path.getBlackList()[path.getBestChild()]) {
-      path.getBayesNet().getParentSet(path.getBestChild()).addParent(path.getI(),
-          path.getInstances());
+      path.getBayesNet()
+          .getParentSet(path.getBestChild())
+          .addParent(path.getI(), path.getInstances());
       path.getBlackList()[path.getBestChild()] = true;
       expandToChild = true;
       path.getTmpBestChildrenMap().remove(path.getBestChildKey());
     }
 
     if (expandToParent) {
-      addBestParentsAndChildren(path.getBayesNet(), path.getInstances(), path.getBestParent(),
-          path.getBlackList());
+      addBestParentsAndChildren(
+          path.getBayesNet(), path.getInstances(), path.getBestParent(), path.getBlackList());
     }
 
     if (expandToChild) {
-      addBestParentsAndChildren(path.getBayesNet(), path.getInstances(), path.getBestChild(),
-          path.getBlackList());
+      addBestParentsAndChildren(
+          path.getBayesNet(), path.getInstances(), path.getBestChild(), path.getBlackList());
     }
   }
 
   /**
    * Expands child's path.
-   * 
+   *
    * @param path
    */
   private void expandChildPath(PathData path) {
     boolean expandToParent = path.isExpandToParent();
     boolean expandToChild = path.isExpandToChild();
     if (path.getBestChild() != null && !path.getBlackList()[path.getBestChild()]) {
-      path.getBayesNet().getParentSet(path.getBestChild()).addParent(path.getI(),
-          path.getInstances());
+      path.getBayesNet()
+          .getParentSet(path.getBestChild())
+          .addParent(path.getI(), path.getInstances());
       path.getBlackList()[path.getBestChild()] = true;
       expandToChild = true;
       path.getTmpBestChildrenMap().remove(path.getBestChildKey());
     }
 
     if (path.getBestParent() != null && !path.getBlackList()[path.getBestParent()]) {
-      path.getBayesNet().getParentSet(path.getI()).addParent(path.getBestParent(),
-          path.getInstances());
+      path.getBayesNet()
+          .getParentSet(path.getI())
+          .addParent(path.getBestParent(), path.getInstances());
       path.getBlackList()[path.getBestParent()] = true;
       expandToParent = true;
       path.getTmpBestParentsMap().remove(path.getBestParentKey());
     }
 
     if (expandToChild) {
-      addBestParentsAndChildren(path.getBayesNet(), path.getInstances(), path.getBestChild(),
-          path.getBlackList());
+      addBestParentsAndChildren(
+          path.getBayesNet(), path.getInstances(), path.getBestChild(), path.getBlackList());
     }
 
     if (expandToParent) {
-      addBestParentsAndChildren(path.getBayesNet(), path.getInstances(), path.getBestParent(),
-          path.getBlackList());
+      addBestParentsAndChildren(
+          path.getBayesNet(), path.getInstances(), path.getBestParent(), path.getBlackList());
     }
   }
 
   /**
    * Adds nodes.
-   * 
-   * Iterative algorithm: start with class by adding best parent and child, expand for child and
+   *
+   * <p>Iterative algorithm: start with class by adding best parent and child, expand for child and
    * parent the same algorithm till no more attributes left. Use queue instead of recursive
    * expansion.
-   * 
+   *
    * @param bayesNet
    * @param instances
    * @param startingAttribute
    */
-  public void addBestParentsAndChildrenIterative(BayesNet bayesNet, Instances instances,
-      int startingAttribute) {
+  public void addBestParentsAndChildrenIterative(
+      BayesNet bayesNet, Instances instances, int startingAttribute) {
     // keeping the expansion order is important, expand to the lowest
     // conditional entropies first
     TreeMap<Double, Integer> expansionOrder = new TreeMap<>();
@@ -352,15 +349,19 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 
   /**
    * Adds best children.
-   * 
+   *
    * @param bayesNet
    * @param instances
    * @param expansionOrder
    * @param blackList
    * @param attribute
    */
-  private void addBestChildren(BayesNet bayesNet, Instances instances,
-      TreeMap<Double, Integer> expansionOrder, boolean[] blackList, Integer attribute) {
+  private void addBestChildren(
+      BayesNet bayesNet,
+      Instances instances,
+      TreeMap<Double, Integer> expansionOrder,
+      boolean[] blackList,
+      Integer attribute) {
     for (var i = 0; i < getMaxNrOfChildren(); i++) {
       Object[] arr = attributeBestChildrenList.get(attribute).keySet().toArray();
 
@@ -373,7 +374,7 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
       Integer val = attributeBestChildrenList.get(attribute).get(key);
 
       if (i < arr.length && !blackList[val]
-      /* && bayesNet.getParentSet(val).getNrOfParents() < getMaxNrOfParents() */) {
+      /* && bayesNet.getParentSet(val).getNrOfParents() < getMaxNrOfParents() */ ) {
         bayesNet.getParentSet(val).addParent(i, instances);
         expansionOrder.put(key, val);
         blackList[val] = true;
@@ -383,15 +384,19 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 
   /**
    * Adds best parents.
-   * 
+   *
    * @param bayesNet
    * @param instances
    * @param expansionOrder
    * @param blackList
    * @param attribute
    */
-  private void addBestParents(BayesNet bayesNet, Instances instances,
-      TreeMap<Double, Integer> expansionOrder, boolean[] blackList, Integer attribute) {
+  private void addBestParents(
+      BayesNet bayesNet,
+      Instances instances,
+      TreeMap<Double, Integer> expansionOrder,
+      boolean[] blackList,
+      Integer attribute) {
     for (var i = 0; i < getMaxNrOfParents(); i++) {
       Object[] arr = attributeBestParentsList.get(attribute).keySet().toArray();
 
@@ -404,12 +409,11 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
       Integer val = attributeBestParentsList.get(attribute).get(key);
 
       if (i < arr.length && !blackList[val]
-      /* && bayesNet.getParentSet(attribute).getNrOfParents() < getMaxNrOfParents() */) {
+      /* && bayesNet.getParentSet(attribute).getNrOfParents() < getMaxNrOfParents() */ ) {
         bayesNet.getParentSet(attribute).addParent(val, instances);
         expansionOrder.put(key, val);
         blackList[val] = true;
       }
     }
   }
-
 }

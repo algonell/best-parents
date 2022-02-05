@@ -4,7 +4,6 @@ import java.util.Enumeration;
 import java.util.Map;
 import java.util.Map.Entry;
 import java.util.logging.Logger;
-
 import weka.classifiers.bayes.BayesNet;
 import weka.core.Attribute;
 import weka.core.Instance;
@@ -13,7 +12,7 @@ import weka.core.Utils;
 
 /**
  * Holds misc utils for the new Bayesian Network structure learning algorithm.
- * 
+ *
  * @author Andrew Kreimer
  */
 public abstract class BnUtils {
@@ -22,7 +21,7 @@ public abstract class BnUtils {
 
   /**
    * Creates attribute distribution description.
-   * 
+   *
    * @param attribute
    * @param distributions
    */
@@ -33,15 +32,18 @@ public abstract class BnUtils {
       sb.append(attribute.value(i) + " " + distributions[i] + "%, ");
     }
 
-    sb.append(attribute.value(distributions.length - 1) + " "
-        + distributions[distributions.length - 1] + "%");
+    sb.append(
+        attribute.value(distributions.length - 1)
+            + " "
+            + distributions[distributions.length - 1]
+            + "%");
 
     return sb.toString();
   }
 
   /**
    * Returns number of children for given node.
-   * 
+   *
    * @param bayesNet
    * @param iNode
    */
@@ -91,7 +93,7 @@ public abstract class BnUtils {
 
   /**
    * Computes information gain for an attribute.
-   * 
+   *
    * @param data the data for which info gain is to be computed
    * @param att the attribute
    * @return the information gain for the given attribute and data
@@ -102,8 +104,9 @@ public abstract class BnUtils {
 
     for (var j = 0; j < att.numValues(); j++) {
       if (splitData[j].numInstances() > 0) {
-        infoGain -= ((double) splitData[j].numInstances() / (double) data.numInstances())
-            * computeEntropy(splitData[j]);
+        infoGain -=
+            ((double) splitData[j].numInstances() / (double) data.numInstances())
+                * computeEntropy(splitData[j]);
       }
     }
 
@@ -112,7 +115,7 @@ public abstract class BnUtils {
 
   /**
    * Computes the entropy of a dataset.
-   * 
+   *
    * @param data the data for which entropy is to be computed
    * @return the entropy of the data's class distribution
    */
@@ -141,10 +144,9 @@ public abstract class BnUtils {
 
   /**
    * Splits a dataset according to the values of a nominal attribute.
-   * 
+   *
    * @param data the data which is to be split
    * @param att the attribute to be used for splitting
-   * 
    * @return the sets of instances produced by the split
    */
   public static Instances[] splitData(Instances data, Attribute att) {
@@ -170,5 +172,4 @@ public abstract class BnUtils {
   }
 
   private BnUtils() {}
-
 }

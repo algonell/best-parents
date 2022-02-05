@@ -17,7 +17,6 @@ import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.TreeMap;
-
 import weka.classifiers.bayes.BayesNet;
 import weka.classifiers.bayes.net.search.SearchAlgorithm;
 import weka.core.ContingencyTables;
@@ -25,7 +24,7 @@ import weka.core.Instances;
 
 /**
  * Best parents search.
- * 
+ *
  * @author Andrew Kreimer
  */
 public class BestParentsSearch extends SearchAlgorithm {
@@ -34,7 +33,7 @@ public class BestParentsSearch extends SearchAlgorithm {
 
   /**
    * Performs path search.
-   * 
+   *
    * @param bayesNet the network
    * @param instances the data to work with
    */
@@ -55,7 +54,9 @@ public class BestParentsSearch extends SearchAlgorithm {
     addBestRules(bayesNet, instances, attributeBestParentsList);
   }
 
-  private void addBestRules(BayesNet bayesNet, Instances instances,
+  private void addBestRules(
+      BayesNet bayesNet,
+      Instances instances,
       ArrayList<TreeMap<Double, Integer>> attributeBestParentsList) {
     for (var i = 0; i < instances.numAttributes(); i++) {
       TreeMap<Double, Integer> tmpTreeMap = attributeBestParentsList.get(i);
@@ -64,8 +65,10 @@ public class BestParentsSearch extends SearchAlgorithm {
       for (Entry<Double, Integer> entry : tmpTreeMap.entrySet()) {
         int value = entry.getValue();
 
-        if (numOfAddedRules < getMaxNrOfParents() && numOfAddedRules < tmpTreeMap.size() &&
-        // avoid parents with several children
+        if (numOfAddedRules < getMaxNrOfParents()
+            && numOfAddedRules < tmpTreeMap.size()
+            &&
+            // avoid parents with several children
             BnUtils.countNumOfChildren(bayesNet, instances, value) < getMaxNrOfParents()
             && !bayesNet.getParentSet(i).contains(value)) {
           bayesNet.getParentSet(i).addParent(value, instances);
@@ -77,12 +80,14 @@ public class BestParentsSearch extends SearchAlgorithm {
 
   /**
    * Finds the best parents for each attribute by conditional entropy and greedy algorithm.
-   * 
+   *
    * @param instances
    * @param attributeMatrix
    * @param attributeBestParentsList
    */
-  private void findBestParents(Instances instances, double[][][][] attributeMatrix,
+  private void findBestParents(
+      Instances instances,
+      double[][][][] attributeMatrix,
       ArrayList<TreeMap<Double, Integer>> attributeBestParentsList) {
     // map<entropy, rule(string)>
     TreeMap<Double, String> entropyRuleMap = new TreeMap<>();
@@ -99,13 +104,15 @@ public class BestParentsSearch extends SearchAlgorithm {
             ContingencyTables.entropyConditionedOnColumns(attributeMatrix[i][j]);
 
         double lowestEntropy =
-            (entropyConditionedOnRows < entropyConditionedOnColumns) ? entropyConditionedOnRows
+            (entropyConditionedOnRows < entropyConditionedOnColumns)
+                ? entropyConditionedOnRows
                 : entropyConditionedOnColumns;
 
         // save current rule
-        String arc = (entropyConditionedOnRows < entropyConditionedOnColumns)
-            ? instances.attribute(j).name() + " <- " + instances.attribute(i).name()
-            : instances.attribute(i).name() + " <- " + instances.attribute(j).name();
+        String arc =
+            (entropyConditionedOnRows < entropyConditionedOnColumns)
+                ? instances.attribute(j).name() + " <- " + instances.attribute(i).name()
+                : instances.attribute(i).name() + " <- " + instances.attribute(j).name();
         entropyRuleMap.put(lowestEntropy, arc);
 
         // best rule
@@ -122,7 +129,7 @@ public class BestParentsSearch extends SearchAlgorithm {
 
   /**
    * Allocates List of Map: Map of best parents for each attribute.
-   * 
+   *
    * @param instances
    */
   private ArrayList<TreeMap<Double, Integer>> allocateAttributeMaps(Instances instances) {
@@ -139,7 +146,7 @@ public class BestParentsSearch extends SearchAlgorithm {
 
   /**
    * Counts instances for each attribute and category.
-   * 
+   *
    * @param instances
    * @param attributeMatrix
    */
@@ -157,7 +164,7 @@ public class BestParentsSearch extends SearchAlgorithm {
 
   /**
    * Allocates contingency matrix for each attribute-attribute pair.
-   * 
+   *
    * @param instances
    */
   private double[][][][] allocateAttributeMatrix(Instances instances) {
@@ -174,18 +181,13 @@ public class BestParentsSearch extends SearchAlgorithm {
     return attributeMatrix;
   }
 
-  /**
-   * Sets the max number of parents.
-   */
+  /** Sets the max number of parents. */
   public void setMaxNrOfParents(int nMaxNrOfParents) {
     m_nMaxNrOfParents = nMaxNrOfParents;
   }
 
-  /**
-   * Gets the max number of parents.
-   */
+  /** Gets the max number of parents. */
   public int getMaxNrOfParents() {
     return m_nMaxNrOfParents;
   }
-
 }
