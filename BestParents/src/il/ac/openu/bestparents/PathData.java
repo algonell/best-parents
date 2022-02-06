@@ -4,8 +4,6 @@
 package il.ac.openu.bestparents;
 
 import java.util.SortedMap;
-import weka.classifiers.bayes.BayesNet;
-import weka.core.Instances;
 
 /**
  * Auto generated wrapper for path expansion.
@@ -14,10 +12,7 @@ import weka.core.Instances;
  */
 public class PathData {
 
-  private BayesNet bayesNet;
-  private Instances instances;
   private int i;
-  private boolean[] blackList;
   private SortedMap<Double, Integer> tmpBestChildrenMap;
   private SortedMap<Double, Integer> tmpBestParentsMap;
   private double bestChildKey;
@@ -27,36 +22,12 @@ public class PathData {
   private boolean expandToChild;
   private boolean expandToParent;
 
-  public BayesNet getBayesNet() {
-    return bayesNet;
-  }
-
-  public void setBayesNet(BayesNet bayesNet) {
-    this.bayesNet = bayesNet;
-  }
-
-  public Instances getInstances() {
-    return instances;
-  }
-
-  public void setInstances(Instances instances) {
-    this.instances = instances;
-  }
-
   public int getI() {
     return i;
   }
 
   public void setI(int i) {
     this.i = i;
-  }
-
-  public boolean[] getBlackList() {
-    return blackList;
-  }
-
-  public void setBlackList(boolean[] blackList) {
-    this.blackList = blackList;
   }
 
   public SortedMap<Double, Integer> getTmpBestChildrenMap() {

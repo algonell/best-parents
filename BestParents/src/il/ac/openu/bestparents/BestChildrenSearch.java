@@ -32,7 +32,7 @@ public class BestChildrenSearch extends SearchAlgorithm {
   private static final long serialVersionUID = 1032285588625105530L;
 
   private int maxNrOfChildren;
-  private double[][][][] attributeMatrix;
+  private double[][][][] attributeMatrix = {};
 
   /**
    * Performs path search.

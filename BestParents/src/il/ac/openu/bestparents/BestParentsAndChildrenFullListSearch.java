@@ -32,7 +32,7 @@ public class BestParentsAndChildrenFullListSearch extends SearchAlgorithm {
   private static final long serialVersionUID = -6875216741076169820L;
 
   private int maxNrOfChildren;
-  private double[][][][] attributeMatrix;
+  private double[][][][] attributeMatrix = {};
 
   /**
    * Performs path search.
@@ -54,7 +54,6 @@ public class BestParentsAndChildrenFullListSearch extends SearchAlgorithm {
     // for each attribute with index i: map<entropy, parent index>, keeping the map sorted
     ArrayList<TreeMap<Double, Integer>> attributeBestParentsList = new ArrayList<>();
     ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList = new ArrayList<>();
-    ArrayList<TreeMap<Double, Integer>> attributeBestParentsAndChildrenList = new ArrayList<>();
 
     // allocate
     for (var i = 0; i < instances.numAttributes(); i++) {
@@ -63,8 +62,6 @@ public class BestParentsAndChildrenFullListSearch extends SearchAlgorithm {
       attributeBestParentsList.add(i, tmpTreeMap);
       tmpTreeMap = new TreeMap<>();
       attributeBestChildrenList.add(i, tmpTreeMap);
-      tmpTreeMap = new TreeMap<>();
-      attributeBestParentsAndChildrenList.add(i, tmpTreeMap);
     }
 
     // map<entropy, rule(string)>

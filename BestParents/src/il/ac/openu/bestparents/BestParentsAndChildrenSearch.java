@@ -14,6 +14,8 @@ package il.ac.openu.bestparents;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.List;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import weka.classifiers.bayes.BayesNet;
@@ -33,9 +35,8 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm {
   private int maxNrOfChildren;
   private double[][][][] attributeMatrix;
 
-  ArrayList<TreeMap<Double, Integer>> attributeBestParentsList;
-  ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList;
-  ArrayList<TreeMap<Double, Integer>> attributeBestParentsAndChildrenList;
+  private List<TreeMap<Double, Integer>> attributeBestParentsList = Collections.emptyList();
+  private List<TreeMap<Double, Integer>> attributeBestChildrenList = Collections.emptyList();
 
   /**
    * Performs path search.
@@ -57,7 +58,6 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm {
     // for each attribute with index i: map<entropy, parent index>, keeping the map sorted
     attributeBestParentsList = new ArrayList<>();
     attributeBestChildrenList = new ArrayList<>();
-    attributeBestParentsAndChildrenList = new ArrayList<>();
 
     // allocate
     for (var i = 0; i < instances.numAttributes(); i++) {
@@ -66,8 +66,6 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm {
       attributeBestParentsList.add(i, tmpTreeMap);
       tmpTreeMap = new TreeMap<>();
       attributeBestChildrenList.add(i, tmpTreeMap);
-      tmpTreeMap = new TreeMap<>();
-      attributeBestParentsAndChildrenList.add(i, tmpTreeMap);
     }
 
     // map<entropy, rule(string)>

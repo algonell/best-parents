@@ -13,7 +13,6 @@
 
 package il.ac.openu.bestparents;
 
-import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.Map.Entry;
 import java.util.TreeMap;
@@ -89,12 +88,6 @@ public class BestParentsSearch extends SearchAlgorithm {
       Instances instances,
       double[][][][] attributeMatrix,
       ArrayList<TreeMap<Double, Integer>> attributeBestParentsList) {
-    // map<entropy, rule(string)>
-    TreeMap<Double, String> entropyRuleMap = new TreeMap<>();
-
-    // map<entropy, rule(attributeChildIndex <- attributeParentIndex)>
-    TreeMap<Double, Entry<Integer, Integer>> entropyChildFromParentMap = new TreeMap<>();
-
     // calculate conditional entropy for contingency tables
     for (var i = 0; i < instances.numAttributes(); i++) {
       for (var j = 0; j < i; j++) {
@@ -108,20 +101,11 @@ public class BestParentsSearch extends SearchAlgorithm {
                 ? entropyConditionedOnRows
                 : entropyConditionedOnColumns;
 
-        // save current rule
-        String arc =
-            (entropyConditionedOnRows < entropyConditionedOnColumns)
-                ? instances.attribute(j).name() + " <- " + instances.attribute(i).name()
-                : instances.attribute(i).name() + " <- " + instances.attribute(j).name();
-        entropyRuleMap.put(lowestEntropy, arc);
-
         // best rule
         if (entropyConditionedOnRows < entropyConditionedOnColumns) {
           attributeBestParentsList.get(j).put(lowestEntropy, i);
-          entropyChildFromParentMap.put(lowestEntropy, new AbstractMap.SimpleEntry<>(j, i));
         } else {
           attributeBestParentsList.get(i).put(lowestEntropy, j);
-          entropyChildFromParentMap.put(lowestEntropy, new AbstractMap.SimpleEntry<>(i, j));
         }
       }
     }
