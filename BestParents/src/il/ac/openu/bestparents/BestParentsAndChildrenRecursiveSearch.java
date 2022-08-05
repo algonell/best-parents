@@ -169,8 +169,8 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
     TreeMap<Double, Integer> tmpBestChildrenMap = attributeBestChildrenList.get(i);
     TreeMap<Double, Integer> tmpBestParentsMap = attributeBestParentsList.get(i);
 
-    double bestChildKey = Double.MAX_VALUE; // +infinity
-    double bestParentKey = Double.MAX_VALUE; // +infinity
+    double bestChildKey = Double.POSITIVE_INFINITY; // +infinity
+    double bestParentKey = Double.POSITIVE_INFINITY; // +infinity
 
     if (tmpBestChildrenMap.keySet().toArray().length != 0) {
       bestChildKey = (double) tmpBestChildrenMap.keySet().toArray()[0];
