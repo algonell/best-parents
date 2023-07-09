@@ -1,6 +1,3 @@
-/*******************************************************************************
- * Copyright (c) Algonell.com Algonell Confidential All Rights Reserved
- ******************************************************************************/
 package il.ac.openu.bestparents;
 
 import java.util.SortedMap;
