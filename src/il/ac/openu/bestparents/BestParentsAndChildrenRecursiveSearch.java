@@ -149,8 +149,7 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
    * @param instances
    * @param i attribute
    */
-  private void addBestParentsAndChildren(
-      BayesNet bayesNet, Instances instances, int i) {
+  private void addBestParentsAndChildren(BayesNet bayesNet, Instances instances, int i) {
     this.bayesNet = bayesNet;
     this.instances = instances;
 
