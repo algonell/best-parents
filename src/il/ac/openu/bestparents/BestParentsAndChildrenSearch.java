@@ -57,13 +57,13 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm {
     }
 
     // map<entropy, rule(string)>
-    TreeMap<Double, String> entropyRuleMap = new TreeMap<>();
+    var entropyRuleMap = new TreeMap<Double, String>();
 
     // map<entropy, rule(attributeChildIndex <- attributeParentIndex)>
-    TreeMap<Double, Entry<Integer, Integer>> entropyChildFromParentMap = new TreeMap<>();
+    var entropyChildFromParentMap = new TreeMap<Double, Entry<Integer, Integer>>();
 
     // map<entropy, rule(attributeParentIndex -> attributeChildIndex)>
-    TreeMap<Double, Entry<Integer, Integer>> entropyParentToChildMap = new TreeMap<>();
+    var entropyParentToChildMap = new TreeMap<Double, Entry<Integer, Integer>>();
 
     // calculate conditional entropy for contingency tables
     calculateContingencyTables(
@@ -75,12 +75,12 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm {
     var childrenBlackList = new boolean[instances.numAttributes()];
 
     for (var i = 0; i < instances.numAttributes(); i++) {
-      TreeMap<Double, Integer> tmpBestChildrenMap = attributeBestChildrenList.get(i);
-      TreeMap<Double, Integer> tmpBestParentsMap = attributeBestParentsList.get(i);
+      var tmpBestChildrenMap = attributeBestChildrenList.get(i);
+      var tmpBestParentsMap = attributeBestParentsList.get(i);
       var numOfAddedRules = 0;
 
-      double bestChildKey = Double.POSITIVE_INFINITY; // +infinity
-      double bestParentKey = Double.POSITIVE_INFINITY; // +infinity
+      var bestChildKey = Double.POSITIVE_INFINITY; // +infinity
+      var bestParentKey = Double.POSITIVE_INFINITY; // +infinity
 
       if (tmpBestChildrenMap.keySet().toArray().length != 0) {
         bestChildKey = (double) tmpBestChildrenMap.keySet().toArray()[0];
@@ -92,7 +92,7 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm {
 
       // if child is better than parent (entropies comparison)
       if (bestChildKey < bestParentKey) {
-        int numOfParentsForCurrentChild =
+        var numOfParentsForCurrentChild =
             bayesNet.getParentSet(tmpBestChildrenMap.get(bestChildKey)).getNrOfParents();
 
         if (numOfAddedRules < getMaxNrOfChildren()
@@ -135,18 +135,18 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm {
       TreeMap<Double, Entry<Integer, Integer>> entropyParentToChildMap) {
     for (var i = 0; i < instances.numAttributes(); i++) {
       for (var j = 0; j < i; j++) {
-        double entropyConditionedOnRows =
+        var entropyConditionedOnRows =
             ContingencyTables.entropyConditionedOnRows(attributeMatrix[i][j]);
-        double entropyConditionedOnColumns =
+        var entropyConditionedOnColumns =
             ContingencyTables.entropyConditionedOnColumns(attributeMatrix[i][j]);
 
-        double lowestEntropy =
+        var lowestEntropy =
             (entropyConditionedOnRows < entropyConditionedOnColumns)
                 ? entropyConditionedOnRows
                 : entropyConditionedOnColumns;
 
         // save current rule
-        String arc =
+        var arc =
             (entropyConditionedOnRows < entropyConditionedOnColumns)
                 ? instances.attribute(j).name() + " <- " + instances.attribute(i).name()
                 : instances.attribute(i).name() + " <- " + instances.attribute(j).name();
@@ -176,8 +176,8 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm {
     for (var n = 0; n < instances.numInstances(); n++) {
       for (var i = 0; i < instances.numAttributes(); i++) {
         for (var j = 0; j < i; j++) {
-          int iAttrIndex = (int) instances.instance(n).value(i);
-          int jAttrIndex = (int) instances.instance(n).value(j);
+          var iAttrIndex = (int) instances.instance(n).value(i);
+          var jAttrIndex = (int) instances.instance(n).value(j);
           attributeMatrix[i][j][iAttrIndex][jAttrIndex]++;
         }
       }

@@ -64,12 +64,12 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
     // calculate conditional entropy for contingency tables
     for (var i = 0; i < instances.numAttributes(); i++) {
       for (var j = 0; j < i; j++) {
-        double entropyConditionedOnRows =
+        var entropyConditionedOnRows =
             ContingencyTables.entropyConditionedOnRows(attributeMatrix[i][j]);
-        double entropyConditionedOnColumns =
+        var entropyConditionedOnColumns =
             ContingencyTables.entropyConditionedOnColumns(attributeMatrix[i][j]);
 
-        double lowestEntropy =
+        var lowestEntropy =
             (entropyConditionedOnRows < entropyConditionedOnColumns)
                 ? entropyConditionedOnRows
                 : entropyConditionedOnColumns;
@@ -97,8 +97,8 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
     for (var n = 0; n < instances.numInstances(); n++) {
       for (var i = 0; i < instances.numAttributes(); i++) {
         for (var j = 0; j < i; j++) {
-          int iAttrIndex = (int) instances.instance(n).value(i);
-          int jAttrIndex = (int) instances.instance(n).value(j);
+          var iAttrIndex = (int) instances.instance(n).value(i);
+          var jAttrIndex = (int) instances.instance(n).value(j);
           attributeMatrix[i][j][iAttrIndex][jAttrIndex]++;
         }
       }
@@ -153,11 +153,11 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
     this.bayesNet = bayesNet;
     this.instances = instances;
 
-    TreeMap<Double, Integer> tmpBestChildrenMap = attributeBestChildrenList.get(i);
-    TreeMap<Double, Integer> tmpBestParentsMap = attributeBestParentsList.get(i);
+    var tmpBestChildrenMap = attributeBestChildrenList.get(i);
+    var tmpBestParentsMap = attributeBestParentsList.get(i);
 
-    double bestChildKey = Double.POSITIVE_INFINITY; // +infinity
-    double bestParentKey = Double.POSITIVE_INFINITY; // +infinity
+    var bestChildKey = Double.POSITIVE_INFINITY; // +infinity
+    var bestParentKey = Double.POSITIVE_INFINITY; // +infinity
 
     if (tmpBestChildrenMap.keySet().toArray().length != 0) {
       bestChildKey = (double) tmpBestChildrenMap.keySet().toArray()[0];
@@ -167,8 +167,8 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
       bestParentKey = (double) tmpBestParentsMap.keySet().toArray()[0];
     }
 
-    Integer bestChild = tmpBestChildrenMap.get(bestChildKey);
-    Integer bestParent = tmpBestParentsMap.get(bestParentKey);
+    var bestChild = tmpBestChildrenMap.get(bestChildKey);
+    var bestParent = tmpBestParentsMap.get(bestParentKey);
 
     var expandToChild = false;
     var expandToParent = false;
@@ -199,8 +199,8 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
    * @param path
    */
   private void expandParentPath(PathData path) {
-    boolean expandToParent = path.isExpandToParent();
-    boolean expandToChild = path.isExpandToChild();
+    var expandToParent = path.isExpandToParent();
+    var expandToChild = path.isExpandToChild();
     if (path.getBestParent() != null && !blackList[path.getBestParent()]) {
       bayesNet.getParentSet(path.getI()).addParent(path.getBestParent(), instances);
       blackList[path.getBestParent()] = true;
@@ -230,8 +230,8 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
    * @param path
    */
   private void expandChildPath(PathData path) {
-    boolean expandToParent = path.isExpandToParent();
-    boolean expandToChild = path.isExpandToChild();
+    var expandToParent = path.isExpandToParent();
+    var expandToChild = path.isExpandToChild();
     if (path.getBestChild() != null && !blackList[path.getBestChild()]) {
       bayesNet.getParentSet(path.getBestChild()).addParent(path.getI(), instances);
       blackList[path.getBestChild()] = true;
@@ -270,7 +270,7 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
       BayesNet bayesNet, Instances instances, int startingAttribute) {
     // keeping the expansion order is important, expand to the lowest
     // conditional entropies first
-    TreeMap<Double, Integer> expansionOrder = new TreeMap<>();
+    var expansionOrder = new TreeMap<Double, Integer>();
 
     // blackList: mark Class as used
     blackList = new boolean[instances.numAttributes()];
@@ -285,7 +285,7 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
     // while there are attributes to expand
     while (!queue.isEmpty()) {
       // current attribute
-      Integer attribute = queue.remove();
+      var attribute = queue.remove();
       blackList[attribute] = true;
 
       // add best parents
@@ -319,15 +319,15 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
       boolean[] blackList,
       Integer attribute) {
     for (var i = 0; i < getMaxNrOfChildren(); i++) {
-      Object[] arr = attributeBestChildrenList.get(attribute).keySet().toArray();
+      var arr = attributeBestChildrenList.get(attribute).keySet().toArray();
 
       // if there are rules
       if (arr.length == 0) {
         break;
       }
 
-      Double key = (Double) arr[i];
-      Integer val = attributeBestChildrenList.get(attribute).get(key);
+      var key = (Double) arr[i];
+      var val = attributeBestChildrenList.get(attribute).get(key);
 
       if (i < arr.length && !blackList[val]
       /* && bayesNet.getParentSet(val).getNrOfParents() < getMaxNrOfParents() */ ) {
@@ -354,15 +354,15 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
       boolean[] blackList,
       Integer attribute) {
     for (var i = 0; i < getMaxNrOfParents(); i++) {
-      Object[] arr = attributeBestParentsList.get(attribute).keySet().toArray();
+      var arr = attributeBestParentsList.get(attribute).keySet().toArray();
 
       // if there are rules
       if (arr.length == 0) {
         break;
       }
 
-      Double key = (Double) arr[i];
-      Integer val = attributeBestParentsList.get(attribute).get(key);
+      var key = (Double) arr[i];
+      var val = attributeBestParentsList.get(attribute).get(key);
 
       if (i < arr.length && !blackList[val]
       /* && bayesNet.getParentSet(attribute).getNrOfParents() < getMaxNrOfParents() */ ) {

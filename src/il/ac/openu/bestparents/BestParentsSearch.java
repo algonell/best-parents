@@ -26,13 +26,13 @@ public class BestParentsSearch extends SearchAlgorithm {
   @Override
   public void search(BayesNet bayesNet, Instances instances) {
     // contingency table for each [attribute X attribute] matrix
-    double[][][][] attributeMatrix = allocateAttributeMatrix(instances);
+    var attributeMatrix = allocateAttributeMatrix(instances);
 
     // count instantiations
     countInstantiations(instances, attributeMatrix);
 
     // for each attribute with index i: map<entropy, parent index>, keeping the map sorted
-    ArrayList<TreeMap<Double, Integer>> attributeBestParentsList = allocateAttributeMaps(instances);
+    var attributeBestParentsList = allocateAttributeMaps(instances);
 
     findBestParents(instances, attributeMatrix, attributeBestParentsList);
 
@@ -45,7 +45,7 @@ public class BestParentsSearch extends SearchAlgorithm {
       Instances instances,
       ArrayList<TreeMap<Double, Integer>> attributeBestParentsList) {
     for (var i = 0; i < instances.numAttributes(); i++) {
-      TreeMap<Double, Integer> tmpTreeMap = attributeBestParentsList.get(i);
+      var tmpTreeMap = attributeBestParentsList.get(i);
       var numOfAddedRules = 0;
 
       for (Entry<Double, Integer> entry : tmpTreeMap.entrySet()) {
@@ -78,12 +78,12 @@ public class BestParentsSearch extends SearchAlgorithm {
     // calculate conditional entropy for contingency tables
     for (var i = 0; i < instances.numAttributes(); i++) {
       for (var j = 0; j < i; j++) {
-        double entropyConditionedOnRows =
+        var entropyConditionedOnRows =
             ContingencyTables.entropyConditionedOnRows(attributeMatrix[i][j]);
-        double entropyConditionedOnColumns =
+        var entropyConditionedOnColumns =
             ContingencyTables.entropyConditionedOnColumns(attributeMatrix[i][j]);
 
-        double lowestEntropy =
+        var lowestEntropy =
             (entropyConditionedOnRows < entropyConditionedOnColumns)
                 ? entropyConditionedOnRows
                 : entropyConditionedOnColumns;
@@ -104,11 +104,11 @@ public class BestParentsSearch extends SearchAlgorithm {
    * @param instances
    */
   private ArrayList<TreeMap<Double, Integer>> allocateAttributeMaps(Instances instances) {
-    ArrayList<TreeMap<Double, Integer>> attributeBestParentsList = new ArrayList<>();
+    var attributeBestParentsList = new ArrayList<TreeMap<Double, Integer>>();
 
     // allocate
     for (var i = 0; i < instances.numAttributes(); i++) {
-      TreeMap<Double, Integer> tmpTreeMap = new TreeMap<>();
+      var tmpTreeMap = new TreeMap<Double, Integer>();
       attributeBestParentsList.add(i, tmpTreeMap);
     }
 
@@ -125,8 +125,8 @@ public class BestParentsSearch extends SearchAlgorithm {
     for (var n = 0; n < instances.numInstances(); n++) {
       for (var i = 0; i < instances.numAttributes(); i++) {
         for (var j = 0; j < i; j++) {
-          int iAttrIndex = (int) instances.instance(n).value(i);
-          int jAttrIndex = (int) instances.instance(n).value(j);
+          var iAttrIndex = (int) instances.instance(n).value(i);
+          var jAttrIndex = (int) instances.instance(n).value(j);
           attributeMatrix[i][j][iAttrIndex][jAttrIndex]++;
         }
       }

@@ -2,7 +2,6 @@ package il.ac.openu.bestparents;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
-import java.util.Map;
 import java.util.Map.Entry;
 import java.util.TreeMap;
 import weka.classifiers.bayes.BayesNet;
@@ -40,8 +39,8 @@ public class BestParentsAndChildrenFullListSearch extends SearchAlgorithm {
     count(instances);
 
     // for each attribute with index i: map<entropy, parent index>, keeping the map sorted
-    ArrayList<TreeMap<Double, Integer>> attributeBestParentsList = new ArrayList<>();
-    ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList = new ArrayList<>();
+    var attributeBestParentsList = new ArrayList<TreeMap<Double, Integer>>();
+    var attributeBestChildrenList = new ArrayList<TreeMap<Double, Integer>>();
 
     // allocate
     for (var i = 0; i < instances.numAttributes(); i++) {
@@ -53,17 +52,17 @@ public class BestParentsAndChildrenFullListSearch extends SearchAlgorithm {
     }
 
     // map<entropy, rule(string)>
-    TreeMap<Double, String> entropyRuleMap = new TreeMap<>();
+    var entropyRuleMap = new TreeMap<Double, String>();
 
     // map<entropy, rule(attributeChildIndex <- attributeParentIndex)>
-    TreeMap<Double, Entry<Integer, Integer>> entropyChildFromParentMap = new TreeMap<>();
+    var entropyChildFromParentMap = new TreeMap<Double, Entry<Integer, Integer>>();
 
     // map<entropy, rule(attributeParentIndex -> attributeChildIndex)>
-    TreeMap<Double, Entry<Integer, Integer>> entropyParentToChildMap = new TreeMap<>();
+    var entropyParentToChildMap = new TreeMap<Double, Entry<Integer, Integer>>();
 
     // Idea 1
     // map<entropy, addParent(whichAttribute, toAdd)>
-    TreeMap<Double, Entry<Integer, Integer>> entropyBestRuleMap = new TreeMap<>();
+    var entropyBestRuleMap = new TreeMap<Double, Entry<Integer, Integer>>();
 
     // calculate conditional entropy for contingency tables
     calculateContingencyTables(
@@ -80,7 +79,7 @@ public class BestParentsAndChildrenFullListSearch extends SearchAlgorithm {
     var blackList = new boolean[instances.numAttributes()];
 
     for (Entry<Double, Entry<Integer, Integer>> entry : entropyBestRuleMap.entrySet()) {
-      Map.Entry<Integer, Integer> value = entry.getValue();
+      var value = entry.getValue();
 
       // add parents
       if (!blackList[value.getKey()] && !blackList[value.getValue()]) {
@@ -112,18 +111,18 @@ public class BestParentsAndChildrenFullListSearch extends SearchAlgorithm {
       TreeMap<Double, Entry<Integer, Integer>> entropyBestRuleMap) {
     for (var i = 0; i < instances.numAttributes(); i++) {
       for (var j = 0; j < i; j++) {
-        double entropyConditionedOnRows =
+        var entropyConditionedOnRows =
             ContingencyTables.entropyConditionedOnRows(attributeMatrix[i][j]);
-        double entropyConditionedOnColumns =
+        var entropyConditionedOnColumns =
             ContingencyTables.entropyConditionedOnColumns(attributeMatrix[i][j]);
 
-        double lowestEntropy =
+        var lowestEntropy =
             (entropyConditionedOnRows < entropyConditionedOnColumns)
                 ? entropyConditionedOnRows
                 : entropyConditionedOnColumns;
 
         // save current rule
-        String arc =
+        var arc =
             (entropyConditionedOnRows < entropyConditionedOnColumns)
                 ? instances.attribute(j).name() + " <- " + instances.attribute(i).name()
                 : instances.attribute(i).name() + " <- " + instances.attribute(j).name();
@@ -157,8 +156,8 @@ public class BestParentsAndChildrenFullListSearch extends SearchAlgorithm {
     for (var n = 0; n < instances.numInstances(); n++) {
       for (var i = 0; i < instances.numAttributes(); i++) {
         for (var j = 0; j < i; j++) {
-          int iAttrIndex = (int) instances.instance(n).value(i);
-          int jAttrIndex = (int) instances.instance(n).value(j);
+          var iAttrIndex = (int) instances.instance(n).value(i);
+          var jAttrIndex = (int) instances.instance(n).value(j);
           attributeMatrix[i][j][iAttrIndex][jAttrIndex]++;
         }
       }

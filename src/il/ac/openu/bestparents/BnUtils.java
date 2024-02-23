@@ -81,9 +81,9 @@ public abstract class BnUtils {
   }
 
   public static void printMatrix(double[][] matrix) {
-    for (var i = 0; i < matrix.length; i++) {
+    for (double[] element : matrix) {
       for (var j = 0; j < matrix[0].length; j++) {
-        var matrixEntry = String.format("%s ", matrix[i][j]);
+        var matrixEntry = String.format("%s ", element[j]);
         LOGGER.info(matrixEntry);
       }
 
@@ -99,8 +99,8 @@ public abstract class BnUtils {
    * @return the information gain for the given attribute and data
    */
   public static double computeInfoGain(Instances data, Attribute att) {
-    double infoGain = computeEntropy(data);
-    Instances[] splitData = splitData(data, att);
+    var infoGain = computeEntropy(data);
+    var splitData = splitData(data, att);
 
     for (var j = 0; j < att.numValues(); j++) {
       if (splitData[j].numInstances() > 0) {
@@ -125,11 +125,11 @@ public abstract class BnUtils {
     Enumeration instEnum = data.enumerateInstances();
 
     while (instEnum.hasMoreElements()) {
-      Instance inst = (Instance) instEnum.nextElement();
+      var inst = (Instance) instEnum.nextElement();
       classCounts[(int) inst.classValue()]++;
     }
 
-    double entropy = 0;
+    var entropy = 0D;
 
     for (var j = 0; j < data.numClasses(); j++) {
       if (classCounts[j] > 0) {
@@ -160,12 +160,12 @@ public abstract class BnUtils {
     Enumeration instEnum = data.enumerateInstances();
 
     while (instEnum.hasMoreElements()) {
-      Instance inst = (Instance) instEnum.nextElement();
+      var inst = (Instance) instEnum.nextElement();
       splitData[(int) inst.value(att)].add(inst);
     }
 
-    for (var i = 0; i < splitData.length; i++) {
-      splitData[i].compactify();
+    for (Instances element : splitData) {
+      element.compactify();
     }
 
     return splitData;
