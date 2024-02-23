@@ -2,7 +2,9 @@ package il.ac.openu.bestparents;
 
 import java.util.AbstractMap;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import weka.classifiers.bayes.BayesNet;
 import weka.classifiers.bayes.net.search.SearchAlgorithm;
@@ -39,7 +41,7 @@ public class BestChildrenSearch extends SearchAlgorithm {
     count(instances);
 
     // for each attribute with index i: map<entropy, child index>, keeping the map sorted
-    var attributeBestChildrenList = new ArrayList<TreeMap<Double, Integer>>();
+    var attributeBestChildrenList = new ArrayList<SortedMap<Double, Integer>>();
 
     // allocate
     for (var i = 0; i < instances.numAttributes(); i++) {
@@ -61,17 +63,11 @@ public class BestChildrenSearch extends SearchAlgorithm {
     assembleNetwork(bayesNet, instances, attributeBestChildrenList);
   }
 
-  /**
-   * Assembles network.
-   *
-   * @param bayesNet
-   * @param instances
-   * @param attributeBestChildrenList
-   */
+  /** Assembles network. */
   private void assembleNetwork(
       BayesNet bayesNet,
       Instances instances,
-      ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList) {
+      List<SortedMap<Double, Integer>> attributeBestChildrenList) {
     for (var i = 0; i < instances.numAttributes(); i++) {
       var tmpTreeMap = attributeBestChildrenList.get(i);
       var numOfAddedRules = 0;
@@ -92,19 +88,12 @@ public class BestChildrenSearch extends SearchAlgorithm {
     }
   }
 
-  /**
-   * Calculates conditional entropies.
-   *
-   * @param instances
-   * @param attributeBestChildrenList
-   * @param entropyRuleMap
-   * @param entropyParentToChildMap
-   */
+  /** Calculates conditional entropies. */
   private void calculateContingencyTables(
       Instances instances,
-      ArrayList<TreeMap<Double, Integer>> attributeBestChildrenList,
-      TreeMap<Double, String> entropyRuleMap,
-      TreeMap<Double, Entry<Integer, Integer>> entropyParentToChildMap) {
+      List<SortedMap<Double, Integer>> attributeBestChildrenList,
+      SortedMap<Double, String> entropyRuleMap,
+      SortedMap<Double, Entry<Integer, Integer>> entropyParentToChildMap) {
     for (var i = 0; i < instances.numAttributes(); i++) {
       for (var j = 0; j < i; j++) {
         var entropyConditionedOnRows =
@@ -135,11 +124,7 @@ public class BestChildrenSearch extends SearchAlgorithm {
     }
   }
 
-  /**
-   * Counts occurrences.
-   *
-   * @param instances
-   */
+  /** Counts occurrences. */
   private void count(Instances instances) {
     for (var n = 0; n < instances.numInstances(); n++) {
       for (var i = 0; i < instances.numAttributes(); i++) {
@@ -152,11 +137,7 @@ public class BestChildrenSearch extends SearchAlgorithm {
     }
   }
 
-  /**
-   * Allocates memory.
-   *
-   * @param instances
-   */
+  /** Allocates memory. */
   private void allocate(Instances instances) {
     for (var j = 0; j < instances.numAttributes(); j++) {
       for (var k = 0; k < j; k++) {

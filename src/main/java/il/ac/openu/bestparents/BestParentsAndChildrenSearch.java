@@ -5,6 +5,7 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map.Entry;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import weka.classifiers.bayes.BayesNet;
 import weka.classifiers.bayes.net.search.SearchAlgorithm;
@@ -120,19 +121,12 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm {
     }
   }
 
-  /**
-   * Calculates conditional entropies.
-   *
-   * @param instances
-   * @param entropyRuleMap
-   * @param entropyChildFromParentMap
-   * @param entropyParentToChildMap
-   */
+  /** Calculates conditional entropies. */
   private void calculateContingencyTables(
       Instances instances,
-      TreeMap<Double, String> entropyRuleMap,
-      TreeMap<Double, Entry<Integer, Integer>> entropyChildFromParentMap,
-      TreeMap<Double, Entry<Integer, Integer>> entropyParentToChildMap) {
+      SortedMap<Double, String> entropyRuleMap,
+      SortedMap<Double, Entry<Integer, Integer>> entropyChildFromParentMap,
+      SortedMap<Double, Entry<Integer, Integer>> entropyParentToChildMap) {
     for (var i = 0; i < instances.numAttributes(); i++) {
       for (var j = 0; j < i; j++) {
         var entropyConditionedOnRows =
@@ -167,11 +161,7 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm {
     }
   }
 
-  /**
-   * Counts occurrences.
-   *
-   * @param instances
-   */
+  /** Counts occurrences. */
   private void count(Instances instances) {
     for (var n = 0; n < instances.numInstances(); n++) {
       for (var i = 0; i < instances.numAttributes(); i++) {
@@ -184,11 +174,7 @@ public class BestParentsAndChildrenSearch extends SearchAlgorithm {
     }
   }
 
-  /**
-   * Allocates memory.
-   *
-   * @param instances
-   */
+  /** Allocates memory. */
   private void allocate(Instances instances) {
     for (var j = 0; j < instances.numAttributes(); j++) {
       for (var k = 0; k < j; k++) {

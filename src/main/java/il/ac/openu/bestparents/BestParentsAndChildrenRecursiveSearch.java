@@ -1,10 +1,11 @@
 package il.ac.openu.bestparents;
 
+import java.util.ArrayDeque;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.LinkedList;
 import java.util.List;
 import java.util.Queue;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import weka.classifiers.bayes.BayesNet;
 import weka.classifiers.bayes.net.search.SearchAlgorithm;
@@ -88,11 +89,7 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
     addBestParentsAndChildrenIterative(bayesNet, instances, instances.numAttributes() - 1);
   }
 
-  /**
-   * Counts occurrences.
-   *
-   * @param instances
-   */
+  /** Counts occurrences. */
   private void count(Instances instances) {
     for (var n = 0; n < instances.numInstances(); n++) {
       for (var i = 0; i < instances.numAttributes(); i++) {
@@ -105,11 +102,7 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
     }
   }
 
-  /**
-   * Allocates memory.
-   *
-   * @param instances
-   */
+  /** Allocates memory. */
   private void allocate(Instances instances) {
     for (var j = 0; j < instances.numAttributes(); j++) {
       for (var k = 0; k < j; k++) {
@@ -144,10 +137,6 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
    *
    * <p>Recursive algorithm: start with class by adding best parent and child, expand for child and
    * parent the same algorithm till no more attributes left.
-   *
-   * @param bayesNet
-   * @param instances
-   * @param i attribute
    */
   private void addBestParentsAndChildren(BayesNet bayesNet, Instances instances, int i) {
     this.bayesNet = bayesNet;
@@ -193,11 +182,7 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
     }
   }
 
-  /**
-   * Expands parent's path.
-   *
-   * @param path
-   */
+  /** Expands parent's path. */
   private void expandParentPath(PathData path) {
     var expandToParent = path.isExpandToParent();
     var expandToChild = path.isExpandToChild();
@@ -224,11 +209,7 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
     }
   }
 
-  /**
-   * Expands child's path.
-   *
-   * @param path
-   */
+  /** Expands child's path. */
   private void expandChildPath(PathData path) {
     var expandToParent = path.isExpandToParent();
     var expandToChild = path.isExpandToChild();
@@ -261,10 +242,6 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
    * <p>Iterative algorithm: start with class by adding best parent and child, expand for child and
    * parent the same algorithm till no more attributes left. Use queue instead of recursive
    * expansion.
-   *
-   * @param bayesNet
-   * @param instances
-   * @param startingAttribute
    */
   public void addBestParentsAndChildrenIterative(
       BayesNet bayesNet, Instances instances, int startingAttribute) {
@@ -277,7 +254,7 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
     blackList[startingAttribute] = true;
 
     // expansion queue
-    Queue<Integer> queue = new LinkedList<>();
+    Queue<Integer> queue = new ArrayDeque<>();
 
     // start with class
     queue.add(startingAttribute);
@@ -296,26 +273,18 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
 
       // if queue is empty, proceed with expansion by order
       if (queue.isEmpty()) {
-        queue = new LinkedList<>();
+        queue = new ArrayDeque<>();
         queue.addAll(expansionOrder.values());
         expansionOrder = new TreeMap<>();
       }
     }
   }
 
-  /**
-   * Adds best children.
-   *
-   * @param bayesNet
-   * @param instances
-   * @param expansionOrder
-   * @param blackList
-   * @param attribute
-   */
+  /** Adds best children. */
   private void addBestChildren(
       BayesNet bayesNet,
       Instances instances,
-      TreeMap<Double, Integer> expansionOrder,
+      SortedMap<Double, Integer> expansionOrder,
       boolean[] blackList,
       Integer attribute) {
     for (var i = 0; i < getMaxNrOfChildren(); i++) {
@@ -338,19 +307,11 @@ public class BestParentsAndChildrenRecursiveSearch extends SearchAlgorithm {
     }
   }
 
-  /**
-   * Adds best parents.
-   *
-   * @param bayesNet
-   * @param instances
-   * @param expansionOrder
-   * @param blackList
-   * @param attribute
-   */
+  /** Adds best parents. */
   private void addBestParents(
       BayesNet bayesNet,
       Instances instances,
-      TreeMap<Double, Integer> expansionOrder,
+      SortedMap<Double, Integer> expansionOrder,
       boolean[] blackList,
       Integer attribute) {
     for (var i = 0; i < getMaxNrOfParents(); i++) {

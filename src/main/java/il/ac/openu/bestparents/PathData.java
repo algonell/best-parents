@@ -1,7 +1,7 @@
 package il.ac.openu.bestparents;
 
-import java.util.SortedMap;
 import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
+import java.util.SortedMap;
 
 /**
  * Auto generated wrapper for path expansion.

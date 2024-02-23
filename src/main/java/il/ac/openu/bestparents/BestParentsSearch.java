@@ -1,7 +1,9 @@
 package il.ac.openu.bestparents;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Map.Entry;
+import java.util.SortedMap;
 import java.util.TreeMap;
 import weka.classifiers.bayes.BayesNet;
 import weka.classifiers.bayes.net.search.SearchAlgorithm;
@@ -43,7 +45,7 @@ public class BestParentsSearch extends SearchAlgorithm {
   private void addBestRules(
       BayesNet bayesNet,
       Instances instances,
-      ArrayList<TreeMap<Double, Integer>> attributeBestParentsList) {
+      List<SortedMap<Double, Integer>> attributeBestParentsList) {
     for (var i = 0; i < instances.numAttributes(); i++) {
       var tmpTreeMap = attributeBestParentsList.get(i);
       var numOfAddedRules = 0;
@@ -64,17 +66,11 @@ public class BestParentsSearch extends SearchAlgorithm {
     }
   }
 
-  /**
-   * Finds the best parents for each attribute by conditional entropy and greedy algorithm.
-   *
-   * @param instances
-   * @param attributeMatrix
-   * @param attributeBestParentsList
-   */
+  /** Finds the best parents for each attribute by conditional entropy and greedy algorithm. */
   private void findBestParents(
       Instances instances,
       double[][][][] attributeMatrix,
-      ArrayList<TreeMap<Double, Integer>> attributeBestParentsList) {
+      List<SortedMap<Double, Integer>> attributeBestParentsList) {
     // calculate conditional entropy for contingency tables
     for (var i = 0; i < instances.numAttributes(); i++) {
       for (var j = 0; j < i; j++) {
@@ -98,13 +94,9 @@ public class BestParentsSearch extends SearchAlgorithm {
     }
   }
 
-  /**
-   * Allocates List of Map: Map of best parents for each attribute.
-   *
-   * @param instances
-   */
-  private ArrayList<TreeMap<Double, Integer>> allocateAttributeMaps(Instances instances) {
-    var attributeBestParentsList = new ArrayList<TreeMap<Double, Integer>>();
+  /** Allocates List of Map: Map of best parents for each attribute. */
+  private List<SortedMap<Double, Integer>> allocateAttributeMaps(Instances instances) {
+    var attributeBestParentsList = new ArrayList<SortedMap<Double, Integer>>();
 
     // allocate
     for (var i = 0; i < instances.numAttributes(); i++) {
@@ -115,12 +107,7 @@ public class BestParentsSearch extends SearchAlgorithm {
     return attributeBestParentsList;
   }
 
-  /**
-   * Counts instances for each attribute and category.
-   *
-   * @param instances
-   * @param attributeMatrix
-   */
+  /** Counts instances for each attribute and category. */
   private void countInstantiations(Instances instances, double[][][][] attributeMatrix) {
     for (var n = 0; n < instances.numInstances(); n++) {
       for (var i = 0; i < instances.numAttributes(); i++) {
@@ -133,11 +120,7 @@ public class BestParentsSearch extends SearchAlgorithm {
     }
   }
 
-  /**
-   * Allocates contingency matrix for each attribute-attribute pair.
-   *
-   * @param instances
-   */
+  /** Allocates contingency matrix for each attribute-attribute pair. */
   private double[][][][] allocateAttributeMatrix(Instances instances) {
     var attributeMatrix = new double[instances.numAttributes()][instances.numAttributes()][][];
 

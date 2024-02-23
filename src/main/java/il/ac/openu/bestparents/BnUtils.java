@@ -19,12 +19,7 @@ public abstract class BnUtils {
 
   private static final Logger LOGGER = Logger.getLogger(BnUtils.class.getName());
 
-  /**
-   * Creates attribute distribution description.
-   *
-   * @param attribute
-   * @param distributions
-   */
+  /** Creates attribute distribution description. */
   public static String makeAttributeDistributionsStr(Attribute attribute, double[] distributions) {
     var sb = new StringBuilder();
 
@@ -41,12 +36,7 @@ public abstract class BnUtils {
     return sb.toString();
   }
 
-  /**
-   * Returns number of children for given node.
-   *
-   * @param bayesNet
-   * @param iNode
-   */
+  /** Returns number of children for given node. */
   public static int countNumOfChildren(BayesNet bayesNet, Instances instances, int iNode) {
     var counter = 0;
 
