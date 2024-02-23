@@ -1,12 +1,14 @@
 package il.ac.openu.bestparents;
 
 import java.util.SortedMap;
+import edu.umd.cs.findbugs.annotations.SuppressFBWarnings;
 
 /**
  * Auto generated wrapper for path expansion.
  *
  * @author Andrew Kreimer
  */
+@SuppressFBWarnings({"EI_EXPOSE_REP", "EI_EXPOSE_REP2"})
 public class PathData {
 
   private int i;
