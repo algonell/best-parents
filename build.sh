@@ -2,5 +2,6 @@
 
 clear
 
-echo "\nbest-parents..."
+echo
+echo "best-parents..."
 mvn -f ~/git/best-parents clean package -DskipTests
